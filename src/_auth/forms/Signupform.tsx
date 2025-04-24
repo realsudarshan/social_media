@@ -1,0 +1,122 @@
+import { Button } from '@/components/ui/button'
+import React from 'react'
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
+import { z } from "zod"
+import {
+    Form,
+    FormControl,
+    FormDescription,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+  } from "@/components/ui/form"
+  
+  import { Input } from "@/components/ui/input"
+import { SignupValidation } from '@/lib/validation'
+  import {Link} from 'react-router-dom'
+import { createUserAccount } from '@/lib/appwrite/api'
+import { toast } from 'sonner'
+const SignupForm = () => {
+    const form = useForm<z.infer<typeof SignupValidation>>({
+        resolver: zodResolver(SignupValidation),
+        defaultValues: {
+            name:"",
+          username: "",
+          email:"",
+          password:""
+        },
+      })
+      async function onSubmit(values: z.infer<typeof SignupValidation>) {
+        const newUser=await createUserAccount(values)
+        // Do something with the form values.
+        // ✅ This will be type-safe and validated.
+        if(!newUser){
+          return toast.error('Sign up failed')
+
+        }
+        toast.success('Signed up sucessfully')
+        // const session=await signInAccount();
+        
+      }
+  return (
+    <Form {...form}>
+        <div className='sm:w-[420px] flex-center flex-col'>
+            <img src='/assets/images/logo.svg'/> 
+        </div>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Name</FormLabel>
+              <FormControl>
+                <Input placeholder="shadcn" {...field} />
+              </FormControl>
+              <FormDescription>
+                This is your public display name.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+         <FormField
+          control={form.control}
+          name="username"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Username</FormLabel>
+              <FormControl>
+                <Input placeholder="shadcn" {...field} />
+              </FormControl>
+              <FormDescription>
+                This is your public display name.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+         <FormField
+          control={form.control}
+          name="email"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Username</FormLabel>
+              <FormControl>
+                <Input placeholder="shadcn" {...field} />
+              </FormControl>
+              <FormDescription>
+                This is your public display name.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+         <FormField
+          control={form.control}
+          name="password"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Password</FormLabel>
+              <FormControl>
+                <Input placeholder="shadcn" {...field} />
+              </FormControl>
+              <FormDescription>
+                Enter your password
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+       
+        <Button type="submit">Submit</Button>
+        <p className='text-small-regular'>Already have an account?</p>
+        <Link to="/sign-in">Login</Link>
+      </form>
+    </Form>
+  )
+}
+
+export default SignupForm
