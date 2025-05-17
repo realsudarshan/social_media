@@ -15,10 +15,16 @@ import {
   
   import { Input } from "@/components/ui/input"
 import { SignupValidation } from '@/lib/validation'
-  import {Link} from 'react-router-dom'
-import { createUserAccount } from '@/lib/appwrite/api'
+  import {Link, useNavigate} from 'react-router-dom'
 import { toast } from 'sonner'
+import { useCreateUserAccount, useSignInAccount } from '@/lib/react-query/queriesAndMutations'
+import { useUserContext } from '@/context/AuthContext'
+
 const SignupForm = () => {
+  const{mutateAsync:createUserAccount,isPending:isCreatingUser}=useCreateUserAccount();
+  const{mutateAsync:signInAccount,isPending:isSigningIn}=useSignInAccount();
+  const {checkAuthUser,isLoading:isUserLoading}=useUserContext()
+  const navigate=useNavigate();
     const form = useForm<z.infer<typeof SignupValidation>>({
         resolver: zodResolver(SignupValidation),
         defaultValues: {
@@ -37,8 +43,23 @@ const SignupForm = () => {
 
         }
         toast.success('Signed up sucessfully')
-        // const session=await signInAccount();
-        
+      console.log("Before making session")
+        const session=await signInAccount({
+          email:values.email,
+          password:values.password
+        });
+        console.log(session)
+        if(!session){
+          return toast.error('Sign in failed.Please try again')
+        }
+        const isLoggedIn=await checkAuthUser();
+        console.log("Is user logged in,isLoggedIn")
+        if(isLoggedIn){
+          form.reset();
+          navigate('/')
+        }else{
+        return  toast.error("Sign in failed")
+        }
       }
   return (
     <Form {...form}>
@@ -83,7 +104,7 @@ const SignupForm = () => {
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Username</FormLabel>
+              <FormLabel>Email</FormLabel>
               <FormControl>
                 <Input placeholder="shadcn" {...field} />
               </FormControl>
@@ -111,7 +132,8 @@ const SignupForm = () => {
           )}
         />
        
-        <Button type="submit">Submit</Button>
+        <Button type="submit">
+          {isCreatingUser? "Loading...":"Submit"}</Button>
         <p className='text-small-regular'>Already have an account?</p>
         <Link to="/sign-in">Login</Link>
       </form>
