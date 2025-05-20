@@ -2,21 +2,32 @@ import React, { useEffect } from 'react'
 import { Link, Navigate, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { Button } from '../ui/button'
 import { useSignOutAccount } from '@/lib/react-query/queriesAndMutations'
-import { useUserContext } from '@/context/AuthContext'
+import { INITIAL_USER, useUserContext } from '@/context/AuthContext'
 import { sidebarLinks } from '@/constants'
 import { INavLink } from '@/types'
+import Loader from './Loader'
 const LeftSidebar = () => {
   const pathname=useLocation();
    const {mutate:signOut,isSuccess}=useSignOutAccount();
     const navigate=useNavigate();
-    const {user}=useUserContext();
+    const { user, setUser, setIsAuthenticated, isLoading } = useUserContext();
   useEffect(() => {
     if(isSuccess) navigate(0);
   
   }, [isSuccess])
 
+   const handleSignOut = async (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) => {
+    e.preventDefault();
+    signOut();
+    setIsAuthenticated(false);
+    setUser(INITIAL_USER);
+    navigate("/sign-in");
+  };
+
   return (
-    <nav className="leftsidebar">
+    <nav className="leftsidebar bg-yellow-100">
       <div className="flex flex-col gap-11">
         <Link to="/" className="flex gap-3 items-center">
           <img
