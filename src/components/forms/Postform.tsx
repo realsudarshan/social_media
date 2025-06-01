@@ -3,29 +3,42 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import React from 'react'
 import { useForm } from 'react-hook-form'
 import { Button } from "@/components/ui/button"
-import {Form,FormControl,FormDescription,FormField,FormItem,FormLabel} from "@/components/ui/form"
+import {Form,FormControl,FormDescription,FormField,FormItem,FormLabel, FormMessage} from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { toast } from 'sonner'
 import { Models } from 'appwrite'
 import { z } from 'zod'
+import { useNavigate } from 'react-router-dom'
+import { useUserContext } from '@/context/AuthContext'
+import { useCreatePost, useUpdatePost } from '@/lib/react-query/queriesAndMutations'
+import { Textarea } from '../ui/textarea'
+import FileUploader from '../shared/FileUploader'
+
 type PostFormProps = {
   post?: Models.Document;
   action: "Create" | "Update";
 };
 const Postform = ({post,action}:PostFormProps) => {
-  const {mutateAsync:createPost,isPending:isLoadingCreate}=useCreatePost()
+   const navigate = useNavigate();
+   const { user } = useUserContext();
+ 
       const form = useForm<z.infer<typeof PostValidation>>({
     resolver: zodResolver(PostValidation),
      defaultValues: {
-      caption: post ? post?.caption : "",
-      file: [],
-      location: post ? post.location : "",
-      tags: post ? post.tags.join(",") : "",
-    }
+  caption: post?.caption ?? "",
+  file: [],
+  location: post?.location ?? "",
+  tags: Array.isArray(post?.tags) ? post.tags.join(",") : "",
+}
   })
+//Query
+const { mutateAsync: createPost, isPending: isLoadingCreate } =
+    useCreatePost();
+  const { mutateAsync: updatePost, isPending: isLoadingUpdate } =
+    useUpdatePost();
 
   //handler
-   const handleSubmit = async (value: z.infer<typeof PostValidation>) => {
+    const handleSubmit = async (value: z.infer<typeof PostValidation>) => {
     // ACTION = UPDATE
     if (post && action === "Update") {
       const updatedPost = await updatePost({
@@ -34,37 +47,117 @@ const Postform = ({post,action}:PostFormProps) => {
         imageId: post.imageId,
         imageUrl: post.imageUrl,
       });
-
+console.log("The values are",value)
       if (!updatedPost) {
-        toast({
-          title: `${action} post failed. Please try again.`,
-        });
+        toast(`${action} post failed. Please try again.`);
       }
       return navigate(`/posts/${post.$id}`);
     }
-  return (
+
+    // ACTION = CREATE
+    const newPost = await createPost({
+      ...value,
+      userId: user.id,
+    });
+
+    if (!newPost) {
+      toast(`${action} post failed. Please try again.`,
+      );
+    }
+    navigate("/");
+  };
+   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
+      <form
+        onSubmit={form.handleSubmit(handleSubmit)}
+        className="flex flex-col gap-9 w-full  max-w-5xl">
         <FormField
           control={form.control}
-          name="username"
+          name="caption"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Username</FormLabel>
+              <FormLabel className="shad-form_label">Caption</FormLabel>
               <FormControl>
-                <Input placeholder="shadcn" {...field} />
+                <Textarea
+                  className="shad-textarea custom-scrollbar"
+                  {...field}
+                />
               </FormControl>
-              <FormDescription>
-                This is your public display name.
-              </FormDescription>
-              
+              <FormMessage className="shad-form_message" />
             </FormItem>
           )}
         />
-        <Button type="submit">Submit</Button>
+
+        <FormField
+          control={form.control}
+          name="file"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="shad-form_label">Add Photos</FormLabel>
+              <FormControl>
+                <FileUploader
+                  fieldChange={field.onChange}
+                  mediaUrl={post?.imageUrl}
+                />
+              </FormControl>
+              <FormMessage className="shad-form_message" />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="location"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="shad-form_label">Add Location</FormLabel>
+              <FormControl>
+                <Input type="text" className="shad-input" {...field} />
+              </FormControl>
+              <FormMessage className="shad-form_message" />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="tags"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="shad-form_label">
+                Add Tags (separated by comma " , ")
+              </FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="Art, Expression, Learn"
+                  type="text"
+                  className="shad-input"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage className="shad-form_message" />
+            </FormItem>
+          )}
+        />
+
+        <div className="flex gap-4 items-center justify-end">
+          <Button
+            type="button"
+            className="shad-button_dark_4"
+            onClick={() => navigate(-1)}>
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            className="shad-button_primary whitespace-nowrap"
+            disabled={isLoadingCreate || isLoadingUpdate}>
+            {(isLoadingCreate || isLoadingUpdate) && 'Loading'}
+            {action} Post
+          </Button>
+        </div>
       </form>
     </Form>
-  )
+  );
 }
 
 export default Postform
