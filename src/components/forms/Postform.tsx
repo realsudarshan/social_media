@@ -47,7 +47,7 @@ const { mutateAsync: createPost, isPending: isLoadingCreate } =
         imageId: post.imageId,
         imageUrl: post.imageUrl,
       });
-console.log("The values are",value)
+console.log("The values are",value,post,updatedPost)
       if (!updatedPost) {
         toast(`${action} post failed. Please try again.`);
       }

@@ -126,10 +126,10 @@ console.log(uploadedFile)
       ID.unique(),
       {
         creator: post.userId,
-        Caption: post.caption,
+        caption: post.caption,
         imageUrl: fileUrl,
-        ImageId: uploadedFile.$id,
-        Location: post.location,
+        imageId: uploadedFile.$id,
+        location: post.location,
         tags: tags,
       }
     );
