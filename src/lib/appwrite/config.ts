@@ -18,4 +18,11 @@ export const account=new Account(client);
 export const databases=new Databases(client);
 export const storage=new Storage(client);
 export const avatars=new Avatars(client);
+account.getSession('current')
+    .then(session => {
+        console.log('Active session:', session);
+    })
+    .catch(error => {
+        console.error('No active session:', error);
+    });
 

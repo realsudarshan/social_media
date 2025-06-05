@@ -41,3 +41,11 @@ export type IContextType = {
   setIsAuthenticated: React.Dispatch<React.SetStateAction<boolean>>;
   checkAuthUser: () => Promise<boolean>;
 };
+export type IUpdateUser = {
+  userId: string;
+  name: string;
+  bio: string;
+  imageId: string;
+  imageUrl: URL | string;
+  file: File[];
+};

@@ -6,15 +6,27 @@ import { Outlet } from 'react-router-dom'
 
 const RootLayout = () => {
   return (
-    <div className='w-full md:flex'>
-      <Topbar/>
-        <LeftSidebar/>
-        <section className='flex flex-1 h-full'>
+    <div className='w-full h-screen flex flex-col'>
+      <div className='sticky top-0 z-50'>
+        <Topbar />
+      </div>
+      
+      <div className='flex flex-1 overflow-hidden'>
+        <div className='sticky top-0 h-screen'>
+          <LeftSidebar/>
+        </div>
+        
+        <main className='flex-1 overflow-y-auto'>
           <Outlet/>
-        </section>
-      <Bottombar/>
+        </main>
+      </div>
+      
+      <div className='sticky bottom-0 z-50'>
+        <Bottombar/>
+      </div>
     </div>
   )
 }
 
 export default RootLayout
+

@@ -6,7 +6,7 @@ const BottomBar = () => {
    const { pathname } = useLocation();
 
    return (
-    <section className="bottom-bar bg-green-300">
+    <section className="bottom-bar hidden bg-green-300">
       {bottombarLinks.map((link) => {
         const isActive = pathname === link.route ;
         return (

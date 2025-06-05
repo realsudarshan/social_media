@@ -14,8 +14,8 @@ useEffect(() => {
 }, [isSuccess])
 
     return (
-    <section className="topbar bg-red-200">
-      <div className="flex-between py-4 px-5">
+    <section className=" bg-red-200 sticky top-0 ">
+      <div className="flex justify-between py-4 px-5">
          <Link to="/" className="flex gap-3 items-center">
           <img
             src="/assets/images/logo.svg"
