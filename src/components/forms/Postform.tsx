@@ -79,7 +79,7 @@ console.log("The values are",value,post,updatedPost)
               <FormLabel className="shad-form_label">Caption</FormLabel>
               <FormControl>
                 <Textarea
-                  className="shad-textarea custom-scrollbar"
+                  className="shad-textarea "
                   {...field}
                 />
               </FormControl>

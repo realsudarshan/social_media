@@ -170,7 +170,7 @@ const UpdateProfile = () => {
                   <FormLabel className="shad-form_label">Bio</FormLabel>
                   <FormControl>
                     <Textarea
-                      className="shad-textarea custom-scrollbar"
+                      className="shad-textarea "
                       {...field}
                     />
                   </FormControl>

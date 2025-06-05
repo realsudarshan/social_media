@@ -27,7 +27,7 @@ const LeftSidebar = () => {
   };
 
   return (
-    <nav className="leftsidebar bg-yellow-100">
+    <nav className="leftsidebar bg-yellow-100 h-full">
       <div className="flex flex-col gap-11">
         <Link to="/" className="flex gap-3 items-center">
           <img
@@ -43,17 +43,19 @@ const LeftSidebar = () => {
             <Loader />
           </div>
         ) : (
-          <Link to={`/profile/${user.id}`} className="flex gap-3 items-center">
+          
+          <Link to={`/profile/${user.id}`} className="flex gap-3 items-center ml-2 max-w-full overflow-hidden">
             <img
               src={user.imageUrl || "/assets/icons/profile-placeholder.svg"}
               alt="profile"
-              className="h-14 w-14 rounded-full"
+              className="h-14 w-14 rounded-full shrink"
             />
             <div className="flex flex-col">
               <p className="body-bold">{user.name}</p>
               <p className="small-regular text-light-3">@{user.username}</p>
             </div>
           </Link>
+          
         )}
 
         <ul className="flex flex-col gap-6">
