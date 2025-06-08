@@ -2,6 +2,17 @@ import { getCurrentUser } from '@/lib/appwrite/api';
 import { IContextType, INewUser, IUser } from '@/types';
 import {createContext,useContext,useEffect,useState} from 'react'
 import { useNavigate } from 'react-router-dom';
+// On load, useEffect runs checkAuthUser.
+
+// checkAuthUser fetches user using Appwrite API.
+
+// If valid, it sets user and isAuthenticated.
+
+// If invalid, it redirects to /sign-up.
+
+// You can use the context via useUserContext() anywhere in the app.
+
+
 export const INITIAL_USER={
     id:'',
     name:'',
