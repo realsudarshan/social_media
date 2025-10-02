@@ -16,8 +16,6 @@ import PostDetails from "./_root/pages/PostDetails"
 import Profile from "./_root/pages/Profile"
 import UpdateProfile from "./_root/pages/UpdateProfile"
 function App() {
-  
-
   return (
 <main className="flex h-screen">
 <Routes>
