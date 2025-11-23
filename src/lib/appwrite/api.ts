@@ -465,3 +465,117 @@ export async function updateUser(user: IUpdateUser) {
     console.log(error);
   }
 }
+
+// ============================== CHECK IF USER IS FOLLOWING
+export async function checkUserFollowStatus(userId: string, followUserId: string) {
+  try {
+    if (!userId || !followUserId) return null;
+    
+    const followDocuments = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.followCollectionId,
+      [
+        Query.equal("followerId", userId),
+        Query.equal("followingId", followUserId),
+      ]
+    );
+
+    return followDocuments.documents.length > 0 ? followDocuments.documents[0] : null;
+  } catch (error) {
+    console.log("Error checking follow status:", error);
+    return null;
+  }
+}
+
+//follow user
+export async function followUser(userId: string, followUserId: string) {
+  try {
+    if (!userId || !followUserId) {
+      throw new Error("User ID and Follow User ID are required");
+    }
+
+    // Check if already following
+    const existingFollow = await checkUserFollowStatus(userId, followUserId);
+    if (existingFollow) {
+      return existingFollow; // Already following
+    }
+
+    const followDocument = await databases.createDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.followCollectionId,
+      ID.unique(),
+      {
+        followerId: userId,
+        followingId: followUserId,
+        followedAt: new Date().toISOString(),
+      }
+    );
+    if (!followDocument) throw Error;
+    return followDocument;
+  } catch (error) {
+    console.log("Error following user:", error);
+    throw error;
+  }
+}
+export async function unfollowUser(userId: string, followUserId: string) {
+  try {
+    if (!userId || !followUserId) {
+      throw new Error("User ID and Follow User ID are required");
+    }
+
+    // Find the follow document
+    const followDocument = await checkUserFollowStatus(userId, followUserId);
+
+    if (!followDocument) {
+      return { status: "ok" }; // Already not following
+    }
+
+    // Delete the follow document
+    await databases.deleteDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.followCollectionId,
+      followDocument.$id
+    );
+
+    return { status: "ok" };
+  } catch (error) {
+    console.log("Error unfollowing user:", error);
+    throw error;
+  }
+}
+
+// ============================== GET FOLLOWERS COUNT
+export async function getFollowersCount(userId: string) {
+  try {
+    if (!userId) return 0;
+
+    const followDocuments = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.followCollectionId,
+      [Query.equal("followingId", userId)]
+    );
+
+    return followDocuments.total || 0;
+  } catch (error) {
+    console.log("Error getting followers count:", error);
+    return 0;
+  }
+}
+
+// ============================== GET FOLLOWING COUNT
+export async function getFollowingCount(userId: string) {
+  try {
+    if (!userId) return 0;
+
+    const followDocuments = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.followCollectionId,
+      [Query.equal("followerId", userId)]
+    );
+
+    return followDocuments.total || 0;
+  } catch (error) {
+    console.log("Error getting following count:", error);
+    return 0;
+  }
+}

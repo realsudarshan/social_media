@@ -11,7 +11,9 @@ import {
 import { Button } from "@/components/ui/button";
 
 import { useUserContext } from "@/context/AuthContext";
-import { useGetUserById } from "@/lib/react-query/queriesAndMutations";
+import { useGetUserById, useFollowUser, useUnfollowUser, useGetFollowersCount, useGetFollowingCount, useGetCurrentUser } from "@/lib/react-query/queriesAndMutations";
+import { checkUserFollowStatus } from "@/lib/appwrite/api";
+import { useEffect, useState } from "react";
 
 import LikedPosts from "./LikedPosts";
 import GridPostList from "@/components/shared/GridPostList";
@@ -35,6 +37,59 @@ const Profile = () => {
   const { pathname } = useLocation();
 
   const { data: currentUser } = useGetUserById(id || "");
+  const { data: loggedInUser } = useGetCurrentUser();
+  const { data: followersCount } = useGetFollowersCount(id || "");
+  const { data: followingCount } = useGetFollowingCount(id || "");
+  const { mutate: followUser, isPending: isFollowing } = useFollowUser();
+  const { mutate: unfollowUser, isPending: isUnfollowing } = useUnfollowUser();
+  const [isFollowingUser, setIsFollowingUser] = useState(false);
+  const [isCheckingStatus, setIsCheckingStatus] = useState(true);
+
+  useEffect(() => {
+    const checkFollowStatus = async () => {
+      if (loggedInUser && currentUser && loggedInUser.$id !== currentUser.$id) {
+        setIsCheckingStatus(true);
+        const followStatus = await checkUserFollowStatus(loggedInUser.$id, currentUser.$id);
+        setIsFollowingUser(!!followStatus);
+        setIsCheckingStatus(false);
+      } else {
+        setIsCheckingStatus(false);
+      }
+    };
+
+    checkFollowStatus();
+  }, [loggedInUser, currentUser]);
+
+  const handleFollowClick = () => {
+    if (!loggedInUser || !currentUser) return;
+
+    const refreshFollowStatus = async () => {
+      if (loggedInUser && currentUser) {
+        const followStatus = await checkUserFollowStatus(loggedInUser.$id, currentUser.$id);
+        setIsFollowingUser(!!followStatus);
+      }
+    };
+
+    if (isFollowingUser) {
+      unfollowUser(
+        { userId: loggedInUser.$id, followUserId: currentUser.$id },
+        {
+          onSuccess: () => {
+            refreshFollowStatus();
+          },
+        }
+      );
+    } else {
+      followUser(
+        { userId: loggedInUser.$id, followUserId: currentUser.$id },
+        {
+          onSuccess: () => {
+            refreshFollowStatus();
+          },
+        }
+      );
+    }
+  };
 
   if (!currentUser)
     return (
@@ -65,9 +120,9 @@ const Profile = () => {
             </div>
 
             <div className="flex gap-8 mt-10 items-center justify-center xl:justify-start flex-wrap z-20">
-              <StatBlock value={currentUser.posts.length} label="Posts" />
-              <StatBlock value={20} label="Followers" />
-              <StatBlock value={20} label="Following" />
+              <StatBlock value={currentUser.posts?.length || 0} label="Posts" />
+              <StatBlock value={followersCount || 0} label="Followers" />
+              <StatBlock value={followingCount || 0} label="Following" />
             </div>
 
             <p className="small-medium md:base-medium text-center xl:text-left mt-7 max-w-screen-sm">
@@ -93,11 +148,22 @@ const Profile = () => {
                 </p>
               </Link>
             </div>
-            <div className={`${user.id === id && "hidden"}`}>
-              <Button type="button" className="shad-button_primary px-8">
-                Follow
-              </Button>
-            </div>
+            {loggedInUser && loggedInUser.$id !== currentUser.$id && (
+              <div>
+                <Button
+                  type="button"
+                  className={`shad-button_primary px-8 ${isFollowingUser ? "shad-button_dark_4" : ""}`}
+                  onClick={handleFollowClick}
+                  disabled={isCheckingStatus || isFollowing || isUnfollowing}
+                >
+                  {isCheckingStatus || isFollowing || isUnfollowing
+                    ? "..."
+                    : isFollowingUser
+                    ? "Unfollow"
+                    : "Follow"}
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </div>

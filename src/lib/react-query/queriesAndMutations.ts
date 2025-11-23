@@ -1,6 +1,6 @@
 import { INewPost, INewUser, IUpdatePost, IUpdateUser } from '@/types';
 import {useQuery,useMutation,useQueryClient,useInfiniteQuery} from '@tanstack/react-query'
-import { createPost, createUserAccount, deleteSavedPost, getCurrentUser, getInfinitePosts, getPostById, getRecentPosts, getUserById, getUsers, likePost, savePost, searchPosts, signInAccount, signOutAccount, updatePost, updateUser } from '../appwrite/api';
+import { createPost, createUserAccount, deleteSavedPost, followUser, getCurrentUser, getFollowersCount, getFollowingCount, getInfinitePosts, getPostById, getRecentPosts, getUserById, getUsers, likePost, savePost, searchPosts, signInAccount, signOutAccount, unfollowUser, updatePost, updateUser } from '../appwrite/api';
 import { QUERY_KEYS } from './queryKeys';
 
 export const useCreateUserAccount = () => {
@@ -173,5 +173,75 @@ export const useUpdateUser = () => {
         queryKey: [QUERY_KEYS.GET_USER_BY_ID, data?.$id],
       });
     },
+  });
+};
+export const useFollowUser = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ userId, followUserId }: { userId: string; followUserId: string }) =>
+      followUser(userId, followUserId),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.GET_CURRENT_USER],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.GET_USER_BY_ID, data?.followerId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.GET_USER_BY_ID, data?.followingId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.GET_USERS],
+      });
+      // Invalidate follower/following counts
+      queryClient.invalidateQueries({
+        queryKey: ["getFollowersCount", data?.followingId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["getFollowingCount", data?.followerId],
+      });
+    },
+  });
+};
+export const useUnfollowUser = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ userId, followUserId }: { userId: string; followUserId: string }) =>
+      unfollowUser(userId, followUserId),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.GET_CURRENT_USER],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.GET_USER_BY_ID, variables.userId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.GET_USER_BY_ID, variables.followUserId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.GET_USERS],
+      });
+      // Invalidate follower/following counts
+      queryClient.invalidateQueries({
+        queryKey: ["getFollowersCount", variables.followUserId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["getFollowingCount", variables.userId],
+      });
+    },
+  });
+};
+export const useGetFollowersCount = (userId: string) => {
+  return useQuery({
+    queryKey: ["getFollowersCount", userId],
+    queryFn: () => getFollowersCount(userId),
+    enabled: !!userId,
+  });
+};
+export const useGetFollowingCount = (userId: string) => {
+  return useQuery({
+    queryKey: ["getFollowingCount", userId],
+    queryFn: () => getFollowingCount(userId),
+    enabled: !!userId,
   });
 };
