@@ -49,3 +49,23 @@ export type IUpdateUser = {
   imageUrl: URL | string;
   file: File[];
 };
+
+export type IComment = {
+  $id: string;
+  post: string;
+  userId: string;
+  content: string;
+  createdAt: string;
+  author?: {
+    $id: string;
+    name: string;
+    username: string;
+    imageUrl?: string;
+  } | null;
+};
+
+export type INewComment = {
+  postId: string;
+  userId: string;
+  content: string;
+};
