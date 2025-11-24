@@ -19,6 +19,7 @@ import { SigninValidation as SigninValidation } from '@/lib/validation'
 import { toast } from 'sonner'
 import {  useSignInAccount } from '@/lib/react-query/queriesAndMutations'
 import { useUserContext } from '@/context/AuthContext'
+import Logo from '@/components/shared/Logo'
 
 const SigninForm = () => {
   
@@ -51,8 +52,8 @@ const SigninForm = () => {
       }
   return (
     <Form {...form}>
-        <div className='sm:w-[420px] flex-center flex-col'>
-            <img src='/assets/images/logo.svg'/> 
+        <div className='sm:w-[420px] flex-center flex-col mb-6'>
+            <Logo size="large" />
         </div>
         <h1>Log in</h1>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">

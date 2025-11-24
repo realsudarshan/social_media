@@ -1,4 +1,4 @@
-# Test1
+# Sero-Fero
 
 A modern web application built with React, TypeScript, and Vite, featuring a robust tech stack for building scalable and maintainable applications.
 
@@ -25,7 +25,7 @@ A modern web application built with React, TypeScript, and Vite, featuring a rob
 1. Clone the repository:
 ```bash
 git clone <your-repository-url>
-cd test1
+cd sero-fero
 ```
 
 2. Install dependencies:
@@ -94,7 +94,7 @@ yarn preview
 ## 📁 Project Structure
 
 ```
-test1/
+sero-fero/
 ├── src/              # Source files
 ├── public/           # Static assets
 ├── components.json   # Component configurations
