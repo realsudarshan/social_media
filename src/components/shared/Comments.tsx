@@ -8,6 +8,7 @@ import { multiFormatDateString } from "@/lib/utils";
 import {
   useCreateComment,
   useGetComments,
+  useDeleteComment,
 } from "@/lib/react-query/queriesAndMutations";
 import { IComment } from "@/types";
 import { toast } from "sonner";
@@ -19,6 +20,7 @@ type CommentsProps = {
 const Comments = ({ postId }: CommentsProps) => {
   const { user } = useUserContext();
   const [commentValue, setCommentValue] = useState("");
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const {
     data: commentsData,
@@ -26,6 +28,7 @@ const Comments = ({ postId }: CommentsProps) => {
     isError,
   } = useGetComments(postId);
   const { mutateAsync: createComment, isPending } = useCreateComment();
+  const { mutateAsync: removeComment } = useDeleteComment();
 
   const comments: IComment[] = useMemo(() => {
     return commentsData?.documents ?? [];
@@ -47,6 +50,17 @@ const Comments = ({ postId }: CommentsProps) => {
     } catch (error) {
       toast.error("Failed to add comment. Please try again.");
       setCommentValue(trimmed);
+    }
+  };
+
+  const handleDeleteComment = async (commentId: string) => {
+    setDeletingId(commentId);
+    try {
+      await removeComment({ commentId, postId });
+    } catch (error) {
+      toast.error("Failed to delete comment. Please try again.");
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -85,9 +99,21 @@ const Comments = ({ postId }: CommentsProps) => {
                         @{author?.username || comment.userId}
                       </p>
                     </div>
-                    <p className="text-light-4 text-xs">
-                      {multiFormatDateString(comment.createdAt)}
-                    </p>
+                    <div className="flex items-center gap-3">
+                      <p className="text-light-4 text-xs">
+                        {multiFormatDateString(comment.createdAt)}
+                      </p>
+                      {comment.userId === user.id && (
+                        <button
+                          type="button"
+                          className="text-red text-xs underline disabled:opacity-50"
+                          onClick={() => handleDeleteComment(comment.$id)}
+                          disabled={deletingId === comment.$id}
+                        >
+                          {deletingId === comment.$id ? "Deleting..." : "Delete"}
+                        </button>
+                      )}
+                    </div>
                   </div>
                   <p className="text-light-2 mt-2 whitespace-pre-line break-words">
                     {comment.content}

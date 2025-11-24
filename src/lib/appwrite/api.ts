@@ -445,6 +445,27 @@ export async function getCommentsByPost(postId: string) {
     throw error;
   }
 }
+
+export async function deleteComment(commentId: string) {
+  if (!appwriteConfig.commentsCollectionId) {
+    throw new Error("Comments collection is not configured.");
+  }
+
+  try {
+    const status = await databases.deleteDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.commentsCollectionId,
+      commentId
+    );
+
+    if (!status) throw Error;
+
+    return status;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
 export async function savePost(userId: string, postId: string) {
   try {
     const updatedPost = await databases.createDocument(
