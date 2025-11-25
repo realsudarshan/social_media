@@ -1,8 +1,26 @@
 import Postform from '@/components/forms/Postform';
-import React from 'react'
+import VerificationRequired from '@/components/shared/VerificationRequired';
+import { useUserContext } from '@/context/AuthContext';
+import React, { useEffect } from 'react'
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
 const CreatePost = () => {
- return (
+  const { isEmailVerified } = useUserContext();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!isEmailVerified) {
+      toast.error("Please verify your email to create posts");
+      navigate('/');
+    }
+  }, [isEmailVerified, navigate]);
+
+  if (!isEmailVerified) {
+    return null; // or a loading spinner
+  }
+
+  return (
     <div className="flex flex-1">
       <div className="common-container">
         <div className="max-w-5xl flex-start gap-3 justify-start w-full">

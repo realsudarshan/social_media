@@ -13,7 +13,6 @@ export async function createUserAccount(user: INewUser) {
 
     if (!newAccount) throw Error;
 
-
     const avatarUrl = avatars.getInitials(user.name);
 
     const newUser = await saveUserToDB({
@@ -30,7 +29,7 @@ export async function createUserAccount(user: INewUser) {
     return error;
   }
 }
-// ============================== SAVE USER TO DB
+
 export async function saveUserToDB(user: {
   accountId: string;
   email: string;
@@ -51,7 +50,7 @@ export async function saveUserToDB(user: {
     console.log(error);
   }
 }
-// ============================== SIGN IN
+
 export async function signInAccount(user: { email: string; password: string }) {
   console.log("SIGNING IN");
 
@@ -62,12 +61,15 @@ export async function signInAccount(user: { email: string; password: string }) {
     );
     console.log("SESSION CREATED:", session);
 
-    // USE http, NOT https, otherwise Appwrite ignores it
-    const verify = await account.createVerification(
-      "http://localhost:5173/verify"
-    );
+    try {
+      const verify = await account.createVerification(
+        "http://localhost:5173/verify"
+      );
+      console.log("Verification request:", verify);
+    } catch (error) {
+      console.log("Verification email skipped/failed:", error);
+    }
 
-    console.log("Verification request:", verify);
     return session;
 
   } catch (error) {
@@ -75,7 +77,6 @@ export async function signInAccount(user: { email: string; password: string }) {
   }
 }
 
-// ============================== CONFIRM VERIFICATION
 export async function confirmVerification(userId: string, secret: string) {
   try {
     const result = await account.updateVerification(userId, secret);
@@ -86,7 +87,6 @@ export async function confirmVerification(userId: string, secret: string) {
   }
 }
 
-// ============================== CREATE PASSWORD RECOVERY
 export async function createPasswordRecovery(email: string) {
   try {
     const result = await account.createRecovery(
@@ -100,7 +100,6 @@ export async function createPasswordRecovery(email: string) {
   }
 }
 
-// ============================== UPDATE PASSWORD RECOVERY
 export async function updatePasswordRecovery(
   userId: string,
   secret: string,
@@ -115,18 +114,15 @@ export async function updatePasswordRecovery(
   }
 }
 
-
-// ============================== GET ACCOUNT
 export async function getAccount() {
   try {
     const currentAccount = await account.get();
-
     return currentAccount;
   } catch (error) {
     console.log(error);
   }
 }
-// ============================== GET USER
+
 export async function getCurrentUser() {
   try {
     const currentAccount = await getAccount();
@@ -147,15 +143,16 @@ export async function getCurrentUser() {
     return null;
   }
 }
+
 export async function signOutAccount() {
   try {
     const session = await account.deleteSession("current");
-
     return session;
   } catch (error) {
     console.log(error);
   }
 }
+
 export async function createPost(post: INewPost) {
   try {
     // Upload file to appwrite storage
@@ -199,6 +196,7 @@ export async function createPost(post: INewPost) {
     console.log(error);
   }
 }
+
 export async function updatePost(post: IUpdatePost) {
   const hasFileToUpdate = post.file.length > 0;
 
@@ -261,6 +259,7 @@ export async function updatePost(post: IUpdatePost) {
     console.log(error);
   }
 }
+
 export async function uploadFile(file: File) {
   try {
     const uploadedFile = await storage.createFile(
@@ -274,6 +273,7 @@ export async function uploadFile(file: File) {
     console.log(error);
   }
 }
+
 export function getFilePreview(fileId: string) {
   try {
     const fileUrl = storage.getFileView(
@@ -289,6 +289,7 @@ export function getFilePreview(fileId: string) {
     console.log(error);
   }
 }
+
 export async function deleteFile(fileId: string) {
   try {
     await storage.deleteFile(appwriteConfig.storageId, fileId);
@@ -298,6 +299,7 @@ export async function deleteFile(fileId: string) {
     console.log(error);
   }
 }
+
 export async function getRecentPosts() {
   try {
     const posts = await databases.listDocuments(
@@ -318,6 +320,7 @@ export async function getRecentPosts() {
     console.log(error);
   }
 }
+
 export async function getUsers(limit?: number) {
   const queries: any[] = [Query.orderDesc("$createdAt")];
 
@@ -340,6 +343,7 @@ export async function getUsers(limit?: number) {
     console.log(error);
   }
 }
+
 export async function getPostById(postId?: string) {
   if (!postId) throw Error;
 
@@ -357,6 +361,7 @@ export async function getPostById(postId?: string) {
     console.log(error);
   }
 }
+
 export async function getInfinitePosts({ pageParam }: { pageParam: number }) {
   const queries: any[] = [Query.orderDesc("$updatedAt"), Query.limit(3)];
 
@@ -379,6 +384,7 @@ export async function getInfinitePosts({ pageParam }: { pageParam: number }) {
     console.log(error);
   }
 }
+
 export async function searchPosts(searchTerm: string) {
   try {
     const posts = await databases.listDocuments(
@@ -413,6 +419,7 @@ export async function likePost(postId: string, likesArray: string[]) {
     console.log(error);
   }
 }
+
 export async function savePost(userId: string, postId: string) {
   try {
     const updatedPost = await databases.createDocument(
@@ -432,6 +439,7 @@ export async function savePost(userId: string, postId: string) {
     console.log(error);
   }
 }
+
 export async function deleteSavedPost(savedRecordId: string) {
   try {
     const statusCode = await databases.deleteDocument(
@@ -447,7 +455,7 @@ export async function deleteSavedPost(savedRecordId: string) {
     console.log(error);
   }
 }
-// ============================== GET USER BY ID
+
 export async function getUserById(userId: string) {
   try {
     const user = await databases.getDocument(
@@ -463,7 +471,7 @@ export async function getUserById(userId: string) {
     console.log(error);
   }
 }
-// ============================== UPDATE USER
+
 export async function updateUser(user: IUpdateUser) {
   const hasFileToUpdate = user.file.length > 0;
   try {

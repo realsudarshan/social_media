@@ -1,6 +1,7 @@
 import Bottombar from '@/components/shared/Bottombar'
 import LeftSidebar from '@/components/shared/LeftSidebar'
 import Topbar from '@/components/shared/Topbar'
+import EmailVerificationBanner from '@/components/shared/EmailVerificationBanner'
 import { useUserContext } from '@/context/AuthContext'
 import React from 'react'
 import { Navigate, Outlet } from 'react-router-dom'
@@ -15,6 +16,7 @@ const RootLayout = () => {
       <div className='w-full h-screen flex flex-col'>
         <div className='sticky top-0 z-50'>
           <Topbar />
+          <EmailVerificationBanner />
         </div>
 
         <div className='flex flex-1 overflow-hidden h-screen '>

@@ -1,13 +1,29 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
 import Loader from '@/components/shared/Loader';
 
 import Postform from "@/components/forms/Postform";
 import { useGetPostById } from "@/lib/react-query/queriesAndMutations";
+import { useUserContext } from "@/context/AuthContext";
+import { toast } from "sonner";
 
 const EditPost = () => {
   const { id } = useParams();
   const { data: post, isLoading } = useGetPostById(id);
+  const { isEmailVerified } = useUserContext();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!isEmailVerified) {
+      toast.error("Please verify your email to edit posts");
+      navigate('/');
+    }
+  }, [isEmailVerified, navigate]);
+
+  if (!isEmailVerified) {
+    return null;
+  }
 
   if (isLoading)
     return (

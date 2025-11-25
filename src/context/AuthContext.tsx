@@ -1,16 +1,8 @@
-import { getCurrentUser } from '@/lib/appwrite/api';
+import { getCurrentUser, getAccount } from '@/lib/appwrite/api';
 import { IContextType, IUser } from '@/types';
 import { createContext, useContext, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom';
-// On load, useEffect runs checkAuthUser.
 
-// checkAuthUser fetches user using Appwrite API.
-
-// If valid, it sets user and isAuthenticated.
-
-// If invalid, it redirects to /sign-up.
-
-// You can use the context via useUserContext() anywhere in the app.
 export const INITIAL_USER = {
   id: '',
   name: '',
@@ -39,22 +31,24 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isEmailVerified, setIsEmailVerified] = useState(false)
   const navigate = useNavigate();
-  
+
   const checkAuthUser = async () => {
     setIsLoading(true);
     try {
-      const currentAccount = await getCurrentUser();
-      if (currentAccount) {
+      const currentAccount = await getAccount();
+      const currentUser = await getCurrentUser();
+
+      if (currentAccount && currentUser) {
         setUser({
-          id: currentAccount.$id,
-          name: currentAccount.name,
-          username: currentAccount.username,
-          email: currentAccount.email,
-          imageUrl: currentAccount.imageUrl,
-          bio: currentAccount.bio,
+          id: currentUser.$id,
+          name: currentUser.name,
+          username: currentUser.username,
+          email: currentUser.email,
+          imageUrl: currentUser.imageUrl,
+          bio: currentUser.bio,
         });
         setIsAuthenticated(true);
-        setIsEmailVerified(currentAccount.emailVerification || false);
+        setIsEmailVerified(currentAccount.emailVerification);
         return true;
       }
       return false;
@@ -69,7 +63,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const initAuth = async () => {
       const cookieFallback = localStorage.getItem('cookieFallback');
-      
+
       // Define public paths
       const publicPaths = ['/sign-in', '/sign-up', '/forgot-password', '/reset-password', '/verify'];
       const currentPath = window.location.pathname;
@@ -97,7 +91,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setIsEmailVerified,
     checkAuthUser
   }
-  
+
   return (
     <AuthContext.Provider value={value}>
       {children}
