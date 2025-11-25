@@ -20,12 +20,12 @@ export type IUpdatePost = {
   tags?: string;
 };
 export type INewUser = {
-    name: string;
-    email: string;
-    username: string;
-    password: string;
-  };
-  export type IUser = {
+  name: string;
+  email: string;
+  username: string;
+  password: string;
+};
+export type IUser = {
   id: string;
   name: string;
   username: string;

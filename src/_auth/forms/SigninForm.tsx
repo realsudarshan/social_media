@@ -23,7 +23,7 @@ import { useUserContext } from '@/context/AuthContext'
 const SigninForm = () => {
 
   const { mutateAsync: signInAccount, isPending } = useSignInAccount();
-  const { checkAuthUser, isLoading: isUserLoading } = useUserContext()
+  const { checkAuthUser,isAuthenticated, isLoading: isUserLoading } = useUserContext()
   const navigate = useNavigate();
   const form = useForm<z.infer<typeof SigninValidation>>({
     resolver: zodResolver(SigninValidation),
@@ -43,10 +43,16 @@ const SigninForm = () => {
       return toast.error('Sign in failed.Please try again')
     }
     const isLoggedIn = await checkAuthUser();
-    if (isLoggedIn) {
+    const isAuth = await isAuthenticated;
+    if (isLoggedIn && isAuth) {
       form.reset();
       navigate('/')
-    } else {
+    }
+    else if (isLoggedIn && !isAuth) {
+      form.reset();
+      navigate('/verify')
+    }
+    else {
       return toast.error("Sign in failed")
     }
   }

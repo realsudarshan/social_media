@@ -26,10 +26,12 @@ function App() {
         <Route element={<AuthLayout />}>
           <Route path="/sign-in" element={<SigninForm />} />
           <Route path="/sign-up" element={<SignupForm />} />
-          <Route path="/verify" element={<VerifyEmail />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
         </Route>
+
+        {/* Verification route - accessible to both authenticated and unauthenticated users */}
+        <Route path="/verify" element={<VerifyEmail />} />
 
 
 
