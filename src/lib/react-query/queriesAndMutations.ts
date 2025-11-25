@@ -1,6 +1,6 @@
 import { INewPost, INewUser, IUpdatePost, IUpdateUser } from '@/types';
-import {useQuery,useMutation,useQueryClient,useInfiniteQuery} from '@tanstack/react-query'
-import { createPost, createUserAccount, deleteSavedPost, getCurrentUser, getInfinitePosts, getPostById, getRecentPosts, getUserById, getUsers, likePost, savePost, searchPosts, signInAccount, signOutAccount, updatePost, updateUser } from '../appwrite/api';
+import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query'
+import { createPost, createPasswordRecovery, createUserAccount, deleteSavedPost, getCurrentUser, getInfinitePosts, getPostById, getRecentPosts, getUserById, getUsers, likePost, savePost, searchPosts, signInAccount, signOutAccount, updatePasswordRecovery, updatePost, updateUser } from '../appwrite/api';
 import { QUERY_KEYS } from './queryKeys';
 
 export const useCreateUserAccount = () => {
@@ -11,14 +11,14 @@ export const useCreateUserAccount = () => {
 export const useSignInAccount = () => {
   return useMutation({
     mutationFn: (user: {
-      email:string;
-      password:string;
+      email: string;
+      password: string;
     }) => signInAccount(user),
   });
 };
 export const useSignOutAccount = () => {
   return useMutation({
-   mutationFn:signOutAccount
+    mutationFn: signOutAccount
   });
 };
 export const useCreatePost = () => {
@@ -67,7 +67,7 @@ export const useGetPosts = () => {
   return useInfiniteQuery({
     queryKey: [QUERY_KEYS.GET_INFINITE_POSTS],
     queryFn: getInfinitePosts as any,
-     initialPageParam: null,
+    initialPageParam: null,
     getNextPageParam: (lastPage: any) => {
       // If there's no data, there are no more pages.
       if (lastPage && lastPage.documents.length === 0) {
@@ -173,5 +173,18 @@ export const useUpdateUser = () => {
         queryKey: [QUERY_KEYS.GET_USER_BY_ID, data?.$id],
       });
     },
+  });
+};
+
+export const useCreatePasswordRecovery = () => {
+  return useMutation({
+    mutationFn: (email: string) => createPasswordRecovery(email),
+  });
+};
+
+export const useUpdatePasswordRecovery = () => {
+  return useMutation({
+    mutationFn: ({ userId, secret, password }: { userId: string; secret: string; password: string }) =>
+      updatePasswordRecovery(userId, secret, password),
   });
 };

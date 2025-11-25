@@ -86,6 +86,36 @@ export async function confirmVerification(userId: string, secret: string) {
   }
 }
 
+// ============================== CREATE PASSWORD RECOVERY
+export async function createPasswordRecovery(email: string) {
+  try {
+    const result = await account.createRecovery(
+      email,
+      "http://localhost:5173/reset-password"
+    );
+    return result;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
+
+// ============================== UPDATE PASSWORD RECOVERY
+export async function updatePasswordRecovery(
+  userId: string,
+  secret: string,
+  password: string
+) {
+  try {
+    const result = await account.updateRecovery(userId, secret, password);
+    return result;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
+
+
 // ============================== GET ACCOUNT
 export async function getAccount() {
   try {

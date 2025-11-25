@@ -5,6 +5,8 @@ import SigninForm from "./_auth/forms/SigninForm"
 import { Home } from "./_root/pages"
 import SignupForm from "./_auth/forms/Signupform"
 import VerifyEmail from "./_auth/forms/VerifyEmail"
+import ForgotPassword from "./_auth/forms/ForgotPassword"
+import ResetPassword from "./_auth/forms/ResetPassword"
 import AuthLayout from "./_auth/AuthLayout"
 import RootLayout from "./_root/RootLayout"
 import { Toaster } from "@/components/ui/sonner"
@@ -25,6 +27,8 @@ function App() {
           <Route path="/sign-in" element={<SigninForm />} />
           <Route path="/sign-up" element={<SignupForm />} />
           <Route path="/verify" element={<VerifyEmail />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
         </Route>
 
 
