@@ -53,28 +53,43 @@ export async function saveUserToDB(user: {
 }
 // ============================== SIGN IN
 export async function signInAccount(user: { email: string; password: string }) {
-  console.log("SIGNING IN");
-
   try {
+    console.log("SIGNING IN");
+    
     const session = await account.createEmailPasswordSession(
       user.email,
       user.password
     );
+    
     console.log("SESSION CREATED:", session);
-
-    // USE http, NOT https, otherwise Appwrite ignores it
-    const verify = await account.createVerification(
-      "http://localhost:5173/verify"
-    );
-
-    console.log("Verification request:", verify);
+    
+    // Get the current user to check verification status
+    const currentUser = await account.get();
+    console.log("USER VERIFICATION STATUS:", currentUser.emailVerification);
+    
+    // Only send verification email if not already verified
+    if (!currentUser.emailVerification) {
+      try {
+        const verification = await account.createVerification(
+          `http:localhost:5173/verify`
+        );
+        console.log("VERIFICATION EMAIL SENT:", verification);
+      } catch (verificationError: any) {
+        // Handle case where verification already exists
+        if (verificationError.code === 409) {
+          console.log("Verification already sent or email already verified");
+        } else {
+          console.error("VERIFICATION ERROR:", verificationError);
+        }
+      }
+    }
+    
     return session;
-
   } catch (error) {
     console.log("SIGN IN ERROR:", error);
+    throw error;
   }
 }
-
 // ============================== CONFIRM VERIFICATION
 export async function confirmVerification(userId: string, secret: string) {
   try {
