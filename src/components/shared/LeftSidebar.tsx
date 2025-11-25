@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { Link, Navigate, NavLink, useLocation, useNavigate } from 'react-router-dom'
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { Button } from '../ui/button'
 import { useSignOutAccount } from '@/lib/react-query/queriesAndMutations'
 import { INITIAL_USER, useUserContext } from '@/context/AuthContext'
@@ -28,16 +28,7 @@ const LeftSidebar = () => {
 
   return (
     <nav className="leftsidebar bg-yellow-100 h-full">
-      <div className="flex flex-col gap-11">
-        <Link to="/" className="flex gap-3 items-center">
-          <img
-            src="/assets/images/logo.svg"
-            alt="logo"
-            width={170}
-            height={36}
-          />
-        </Link>
-
+      <div className="flex flex-col gap-8">
         {isLoading || !user.email ? (
           <div className="h-14">
             <Loader />

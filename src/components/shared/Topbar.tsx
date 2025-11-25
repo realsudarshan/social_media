@@ -1,8 +1,9 @@
 import React, { useEffect } from 'react'
-import { Link, Navigate, useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Button } from '../ui/button'
 import { useSignOutAccount } from '@/lib/react-query/queriesAndMutations'
 import { useUserContext } from '@/context/AuthContext'
+import Logo from './Logo'
 
 const Topbar = () => {
   const {mutate:signOut,isSuccess}=useSignOutAccount();
@@ -15,16 +16,11 @@ useEffect(() => {
 
     return (
     <section className=" bg-red-200 sticky top-0 ">
-      <div className="flex justify-between py-4 px-5">
-         <Link to="/" className="flex gap-3 items-center">
-          <img
-            src="/assets/images/logo.svg"
-            alt="logo"
-            width={130}
-            height={325}
-          />
+      <div className="flex justify-between items-center py-3 px-5">
+        <Link to="/" className="flex gap-3 items-center">
+          <Logo size="small" />
         </Link>
- <div className="flex gap-4">
+        <div className="flex gap-4">
           <Button
             variant="ghost"
             className="shad-button_ghost"

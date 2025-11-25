@@ -1,7 +1,5 @@
 
-
 import { useMemo, useState } from "react";
-
 import Loader from "@/components/shared/Loader";
 import UserCard from "@/components/shared/UserCard";
 import { Input } from "@/components/ui/input";

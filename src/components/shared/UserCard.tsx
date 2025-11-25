@@ -1,6 +1,8 @@
 import { Models } from "appwrite";
 import { Link } from "react-router-dom";
-
+import { useEffect, useState } from "react";
+import { useGetCurrentUser, useFollowUser, useUnfollowUser } from "@/lib/react-query/queriesAndMutations";
+import { checkUserFollowStatus } from "@/lib/appwrite/api";
 import { Button } from "../ui/button";
 
 type UserCardProps = {
@@ -8,6 +10,66 @@ type UserCardProps = {
 };
 
 const UserCard = ({ user }: UserCardProps) => {
+  const { data: currentUser } = useGetCurrentUser();
+  const { mutate: followUser, isPending: isFollowing } = useFollowUser();
+  const { mutate: unfollowUser, isPending: isUnfollowing } = useUnfollowUser();
+  const [isFollowingUser, setIsFollowingUser] = useState(false);
+  const [isCheckingStatus, setIsCheckingStatus] = useState(true);
+
+  useEffect(() => {
+    const checkFollowStatus = async () => {
+      if (currentUser && user) {
+        setIsCheckingStatus(true);
+        const followStatus = await checkUserFollowStatus(currentUser.$id, user.$id);
+        setIsFollowingUser(!!followStatus);
+        setIsCheckingStatus(false);
+      } else {
+        setIsCheckingStatus(false);
+      }
+    };
+
+    checkFollowStatus();
+  }, [currentUser, user]);
+
+  const handleFollowClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!currentUser) return;
+
+    const refreshFollowStatus = async () => {
+      if (currentUser && user) {
+        const followStatus = await checkUserFollowStatus(currentUser.$id, user.$id);
+        setIsFollowingUser(!!followStatus);
+      }
+    };
+
+    if (isFollowingUser) {
+      unfollowUser(
+        { userId: currentUser.$id, followUserId: user.$id },
+        {
+          onSuccess: () => {
+            refreshFollowStatus(); // Re-check status after unfollow
+          },
+        }
+      );
+    } else {
+     
+     
+      followUser(
+        { userId: currentUser.$id, followUserId: user.$id },
+        {
+          onSuccess: () => {
+            refreshFollowStatus(); // Re-check status after follow
+          },
+        }
+      );
+    }
+  };
+
+  // Don't show follow button if viewing own profile
+  const isCurrentUser = currentUser?.$id === user.$id;
+
   return (
     <Link to={`/profile/${user.$id}`} className="user-card">
       <img
@@ -25,9 +87,21 @@ const UserCard = ({ user }: UserCardProps) => {
         </p>
       </div>
 
-      <Button type="button" size="sm" className="shad-button_primary px-5">
-        Follow
-      </Button>
+      {!isCurrentUser && (
+        <Button
+          type="button"
+          size="sm"
+          className={`shad-button_primary px-5 ${isFollowingUser ? "shad-button_dark_4" : ""}`}
+          onClick={handleFollowClick}
+          disabled={isCheckingStatus || isFollowing || isUnfollowing}
+        >
+          {isCheckingStatus || isFollowing || isUnfollowing
+            ? "..."
+            : isFollowingUser
+            ? "Unfollow"
+            : "Follow"}
+        </Button>
+      )}
     </Link>
   );
 };
