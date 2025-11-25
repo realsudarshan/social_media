@@ -4,61 +4,61 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import {
-    Form,
-    FormControl,
-    FormDescription,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-  } from "@/components/ui/form"
-  
-  import { Input } from "@/components/ui/input"
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form"
+
+import { Input } from "@/components/ui/input"
 import { SigninValidation as SigninValidation } from '@/lib/validation'
-  import {Link, useNavigate} from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
-import {  useSignInAccount } from '@/lib/react-query/queriesAndMutations'
+import { useSignInAccount } from '@/lib/react-query/queriesAndMutations'
 import { useUserContext } from '@/context/AuthContext'
 
 const SigninForm = () => {
-  
-  const{mutateAsync:signInAccount,isPending}=useSignInAccount();
-  const {checkAuthUser,isLoading:isUserLoading}=useUserContext()
-  const navigate=useNavigate();
-    const form = useForm<z.infer<typeof SigninValidation>>({
-        resolver: zodResolver(SigninValidation),
-        defaultValues: {
-          email:"",
-          password:""
-        },
-      })
-      async function onSubmit(values: z.infer<typeof SigninValidation>) {
-       
-        const session=await signInAccount({
-          email:values.email,
-          password:values.password
-        });
-        
-        if(!session){
-          return toast.error('Sign in failed.Please try again')
-        }
-        const isLoggedIn=await checkAuthUser();
-        if(isLoggedIn){
-          form.reset();
-          navigate('/')
-        }else{
-        return  toast.error("Sign in failed")
-        }
-      }
+
+  const { mutateAsync: signInAccount, isPending } = useSignInAccount();
+  const { checkAuthUser, isLoading: isUserLoading } = useUserContext()
+  const navigate = useNavigate();
+  const form = useForm<z.infer<typeof SigninValidation>>({
+    resolver: zodResolver(SigninValidation),
+    defaultValues: {
+      email: "",
+      password: ""
+    },
+  })
+  async function onSubmit(values: z.infer<typeof SigninValidation>) {
+
+    const session = await signInAccount({
+      email: values.email,
+      password: values.password
+    });
+
+    if (!session) {
+      return toast.error('Sign in failed.Please try again')
+    }
+    const isLoggedIn = await checkAuthUser();
+    if (isLoggedIn) {
+      form.reset();
+      navigate('/')
+    } else {
+      return toast.error("Sign in failed")
+    }
+  }
   return (
     <Form {...form}>
-        <div className='sm:w-[420px] flex-center flex-col'>
-            <img src='/assets/images/logo.svg'/> 
-        </div>
-        <h1>Log in</h1>
+      <div className='sm:w-[420px] flex-center flex-col'>
+        <img src='/assets/images/logo.svg' />
+      </div>
+      <h1>Log in</h1>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-      
-         <FormField
+
+        <FormField
           control={form.control}
           name="email"
           render={({ field }) => (
@@ -74,14 +74,14 @@ const SigninForm = () => {
             </FormItem>
           )}
         />
-         <FormField
+        <FormField
           control={form.control}
           name="password"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Password</FormLabel>
               <FormControl>
-                <Input placeholder="shadcn" {...field} />
+                <Input type="password" placeholder="shadcn" {...field} />
               </FormControl>
               <FormDescription>
                 Enter your password
@@ -90,9 +90,15 @@ const SigninForm = () => {
             </FormItem>
           )}
         />
-       
+
+        <div className="flex justify-end -mt-4">
+          <Link to="/forgot-password" className="text-primary-500 text-small-semibold hover:underline">
+            Forgot Password?
+          </Link>
+        </div>
+
         <Button type="submit">
-          {isUserLoading? "Loading...":"Sign In"}</Button>
+          {isUserLoading ? "Loading..." : "Sign In"}</Button>
         <p className='text-small-regular'>Don't have an account?</p>
         <Link to="/sign-up">Sign-up</Link>
       </form>

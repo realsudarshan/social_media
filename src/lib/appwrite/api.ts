@@ -85,6 +85,48 @@ export async function confirmVerification(userId: string, secret: string) {
     throw error;
   }
 }
+// ============================== SEND PASSWORD RECOVERY
+export async function sendPasswordRecovery(email: string) {
+  try {
+    // Check if email exists inside your custom collection
+    const result = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      [Query.equal("email", email)]
+    );
+
+    if (result.total === 0) {
+      throw new Error("Email does not exist");
+    }
+
+    // Create recovery email
+    return await account.createRecovery(
+      email,
+      "http://localhost:5173/reset-password"
+    );
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function updatePasswordAfterRecovery(
+  userId: string,
+  secret: string,
+  newPassword: string
+) {
+  try {
+    return await account.updateRecovery(
+      userId,
+      secret,
+      newPassword
+    );
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
 
 // ============================== GET ACCOUNT
 export async function getAccount() {
