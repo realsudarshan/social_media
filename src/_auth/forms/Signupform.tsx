@@ -4,68 +4,68 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import {
-    Form,
-    FormControl,
-    FormDescription,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-  } from "@/components/ui/form"
-  
-  import { Input } from "@/components/ui/input"
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form"
+
+import { Input } from "@/components/ui/input"
 import { SignupValidation } from '@/lib/validation'
-  import {Link, useNavigate} from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { useCreateUserAccount, useSignInAccount } from '@/lib/react-query/queriesAndMutations'
 import { useUserContext } from '@/context/AuthContext'
 
 const SignupForm = () => {
-  const{mutateAsync:createUserAccount,isPending:isCreatingUser}=useCreateUserAccount();
-  const{mutateAsync:signInAccount,isPending:isSigningIn}=useSignInAccount();
-  const {checkAuthUser,isLoading:isUserLoading}=useUserContext()
-  const navigate=useNavigate();
-    const form = useForm<z.infer<typeof SignupValidation>>({
-        resolver: zodResolver(SignupValidation),
-        defaultValues: {
-            name:"",
-          username: "",
-          email:"",
-          password:""
-        },
-      })
-      async function onSubmit(values: z.infer<typeof SignupValidation>) {
-        const newUser=await createUserAccount(values)
-        // Do something with the form values.
-        // ✅ This will be type-safe and validated.
-        if(!newUser){
-          return toast.error('Sign up failed')
+  const { mutateAsync: createUserAccount, isPending: isCreatingUser } = useCreateUserAccount();
+  const { mutateAsync: signInAccount, isPending: isSigningIn } = useSignInAccount();
+  const { checkAuthUser, isLoading: isUserLoading } = useUserContext()
+  const navigate = useNavigate();
+  const form = useForm<z.infer<typeof SignupValidation>>({
+    resolver: zodResolver(SignupValidation),
+    defaultValues: {
+      name: "",
+      username: "",
+      email: "",
+      password: ""
+    },
+  })
+  async function onSubmit(values: z.infer<typeof SignupValidation>) {
+    const newUser = await createUserAccount(values)
+    // Do something with the form values.
+    // ✅ This will be type-safe and validated.
+    if (!newUser) {
+      return toast.error('Sign up failed')
 
-        }
-        toast.success('Signed up sucessfully')
-      console.log("Before making session")
-        const session=await signInAccount({
-          email:values.email,
-          password:values.password
-        });
-        console.log(session)
-        if(!session){
-          return toast.error('Sign in failed.Please try again')
-        }
-        const isLoggedIn=await checkAuthUser();
-        console.log("Is user logged in,isLoggedIn")
-        if(isLoggedIn){
-          form.reset();
-          navigate('/')
-        }else{
-        return  toast.error("Sign in failed")
-        }
-      }
+    }
+    toast.success('Signed up sucessfully')
+    console.log("Before making session")
+    const session = await signInAccount({
+      email: values.email,
+      password: values.password
+    });
+    console.log(session)
+    if (!session) {
+      return toast.error('Sign in failed.Please try again')
+    }
+    const isLoggedIn = await checkAuthUser();
+    console.log("Is user logged in,isLoggedIn")
+    if (isLoggedIn) {
+      form.reset();
+      navigate('/')
+    } else {
+      return toast.error("Sign in failed")
+    }
+  }
   return (
     <Form {...form}>
-        <div className='sm:w-[420px] flex-center flex-col'>
-            <img src='/assets/images/logo.svg'/> 
-        </div>
+      <div className='sm:w-[420px] flex-center flex-col'>
+        <img src='/assets/images/logo.svg' />
+      </div>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <FormField
           control={form.control}
@@ -83,7 +83,7 @@ const SignupForm = () => {
             </FormItem>
           )}
         />
-         <FormField
+        <FormField
           control={form.control}
           name="username"
           render={({ field }) => (
@@ -99,7 +99,7 @@ const SignupForm = () => {
             </FormItem>
           )}
         />
-         <FormField
+        <FormField
           control={form.control}
           name="email"
           render={({ field }) => (
@@ -115,7 +115,7 @@ const SignupForm = () => {
             </FormItem>
           )}
         />
-         <FormField
+        <FormField
           control={form.control}
           name="password"
           render={({ field }) => (
@@ -131,9 +131,9 @@ const SignupForm = () => {
             </FormItem>
           )}
         />
-       
+
         <Button type="submit">
-          {isCreatingUser? "Loading...":"Submit"}</Button>
+          {isCreatingUser ? "Loading..." : "Submit"}</Button>
         <p className='text-small-regular'>Already have an account?</p>
         <Link to="/sign-in">Login</Link>
       </form>

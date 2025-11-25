@@ -1,63 +1,88 @@
 import { INewPost, INewUser, IUpdatePost, IUpdateUser } from "@/types";
 import { ID, Query } from "appwrite";
 import { account, appwriteConfig, avatars, databases, storage } from "./config";
-import { ImageGravity } from 'appwrite';
-export async function createUserAccount(user: INewUser) {
-    try {
-      const newAccount = await account.create(
-        ID.unique(),
-        user.email,
-        user.password,
-        user.name
-      );
-  
-      if (!newAccount) throw Error;
-  
-      const avatarUrl = avatars.getInitials(user.name);
-  
-      const newUser = await saveUserToDB({
-        accountId: newAccount.$id,
-        name: newAccount.name,
-        email: newAccount.email,
-        username: user.username,
-        imageUrl: new URL(avatarUrl),
-      });
-  
-      return newUser;
-    } catch (error) {
-      console.log(error);
-      return error;
-    }
-  }
-// ============================== SAVE USER TO DB
-export async function saveUserToDB(user: {
-    accountId: string;
-    email: string;
-    name: string;
-    imageUrl: URL;
-    username?: string;
-  }) {
-    try {
-      const newUser = await databases.createDocument(
-        appwriteConfig.databaseId,
-        appwriteConfig.userCollectionId,
-        ID.unique(),
-        user
-      );
-  
-      return newUser;
-    } catch (error) {
-      console.log(error);
-    }
-  }
-  // ============================== SIGN IN
-export async function signInAccount(user: { email: string; password: string }) {
-  try {
-    const session = await account.createEmailPasswordSession(user.email, user.password);
 
-    return session;
+export async function createUserAccount(user: INewUser) {
+  try {
+    const newAccount = await account.create(
+      ID.unique(),
+      user.email,
+      user.password,
+      user.name
+    );
+
+    if (!newAccount) throw Error;
+
+
+    const avatarUrl = avatars.getInitials(user.name);
+
+    const newUser = await saveUserToDB({
+      accountId: newAccount.$id,
+      name: newAccount.name,
+      email: newAccount.email,
+      username: user.username,
+      imageUrl: new URL(avatarUrl),
+    });
+
+    return newUser;
   } catch (error) {
     console.log(error);
+    return error;
+  }
+}
+// ============================== SAVE USER TO DB
+export async function saveUserToDB(user: {
+  accountId: string;
+  email: string;
+  name: string;
+  imageUrl: URL;
+  username?: string;
+}) {
+  try {
+    const newUser = await databases.createDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      ID.unique(),
+      user
+    );
+
+    return newUser;
+  } catch (error) {
+    console.log(error);
+  }
+}
+// ============================== SIGN IN
+export async function signInAccount(user: { email: string; password: string }) {
+  console.log("SIGNING IN");
+
+  try {
+    const session = await account.createEmailPasswordSession(
+      user.email,
+      user.password
+    );
+    console.log("SESSION CREATED:", session);
+
+    // USE http, NOT https, otherwise Appwrite ignores it
+    const verify = await account.createVerification(
+      "http://localhost:5173/verify"
+    );
+
+    console.log("Verification request:", verify);
+    return session;
+
+  } catch (error) {
+    console.log("SIGN IN ERROR:", error);
+  }
+}
+
+// ============================== CONFIRM VERIFICATION
+export async function confirmVerification(userId: string, secret: string) {
+  try {
+    const result = await account.updateVerification(userId, secret);
+    return result;
+  } catch (error) {
+    console.log(error);
+    throw error;
   }
 }
 
@@ -107,9 +132,9 @@ export async function createPost(post: INewPost) {
     const uploadedFile = await uploadFile(post.file[0]);
 
     if (!uploadedFile) throw Error;
-console.log(uploadedFile)
+    console.log(uploadedFile)
     // Get file url
-    const fileUrl =  getFilePreview(uploadedFile.$id);
+    const fileUrl = getFilePreview(uploadedFile.$id);
     console.log(fileUrl)
     if (!fileUrl) {
       await deleteFile(uploadedFile.$id);
@@ -206,7 +231,7 @@ export async function updatePost(post: IUpdatePost) {
     console.log(error);
   }
 }
-    export async function uploadFile(file: File) {
+export async function uploadFile(file: File) {
   try {
     const uploadedFile = await storage.createFile(
       appwriteConfig.storageId,
@@ -225,7 +250,7 @@ export function getFilePreview(fileId: string) {
       appwriteConfig.storageId,
       fileId,
     );
-    console.log("the fileurl i am getting",fileUrl)
+    console.log("the fileurl i am getting", fileUrl)
 
     if (!fileUrl) throw Error;
 
@@ -250,12 +275,12 @@ export async function getRecentPosts() {
       appwriteConfig.postCollectionId,
       [Query.orderDesc("$createdAt"), Query.limit(20)]
     );
-    console.log("all possts are given below",posts)
-   const allposts = posts.documents.map((p) => ({
-  ...p,
-  imageUrl: p.imageUrl.replace('/preview', '/view'),
-}));
-console.log("The corrected post are",allposts)
+    console.log("all possts are given below", posts)
+    const allposts = posts.documents.map((p) => ({
+      ...p,
+      imageUrl: p.imageUrl.replace('/preview', '/view'),
+    }));
+    console.log("The corrected post are", allposts)
     if (!posts) throw Error;
 
     return allposts;
@@ -276,7 +301,7 @@ export async function getUsers(limit?: number) {
       appwriteConfig.userCollectionId,
       queries
     );
-    console.log("The users are",users)
+
 
     if (!users) throw Error;
 
