@@ -1,5 +1,5 @@
-import { INewPost, INewUser, IUpdatePost, IUpdateUser } from "@/types";
-import { ID, Query } from "appwrite";
+import { INewComment, INewPost, INewUser, IUpdatePost, IUpdateUser } from "@/types";
+import { ID, Query, Models } from "appwrite";
 import { account, appwriteConfig, avatars, databases, storage } from "./config";
 export async function createUserAccount(user: INewUser) {
     try {
@@ -299,7 +299,12 @@ export async function getPostById(postId?: string) {
 
     if (!post) throw Error;
 
-    return post;
+    const formattedPost = {
+      ...post,
+      imageUrl: post.imageUrl?.replace("/preview", "/view"),
+    };
+
+    return formattedPost;
   } catch (error) {
     console.log(error);
   }
@@ -358,6 +363,110 @@ export async function likePost(postId: string, likesArray: string[]) {
     return updatedPost;
   } catch (error) {
     console.log(error);
+  }
+}
+export async function createComment(comment: INewComment) {
+  console.log("The comment is",comment) 
+  if (!appwriteConfig.commentsCollectionId) {
+    throw new Error("Comments collection is not configured.");
+  }
+  try {
+    const newComment = await databases.createDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.commentsCollectionId,
+      ID.unique(),
+      {
+        post: comment.postId,
+        userId: comment.userId,
+        content: comment.content,
+      }
+    );
+console.log("The new comment is",newComment)
+    if (!newComment) throw Error;
+
+    return newComment;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
+
+export async function getCommentsByPost(postId: string) {
+  if (!appwriteConfig.commentsCollectionId) {
+    throw new Error("Comments collection is not configured.");
+  }
+  try {
+    const comments = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.commentsCollectionId,
+      [Query.equal("post", postId), Query.orderDesc("$createdAt")]
+    );
+
+    if (!comments) throw Error;
+
+    const userIds = Array.from(
+      new Set(
+        comments.documents
+          .map((comment: Models.Document) => comment.userId)
+          .filter(Boolean)
+      )
+    );
+
+    const userMap = new Map<
+      string,
+      { $id: string; name: string; username: string; imageUrl?: string }
+    >();
+
+    await Promise.all(
+      userIds.map(async (userId) => {
+        try {
+          const user = await databases.getDocument(
+            appwriteConfig.databaseId,
+            appwriteConfig.userCollectionId,
+            userId
+          );
+          userMap.set(userId, {
+            $id: user.$id,
+            name: user.name,
+            username: user.username,
+            imageUrl: user.imageUrl,
+          });
+        } catch (error) {
+          console.log("Failed to fetch user for comment", userId, error);
+        }
+      })
+    );
+
+    const enrichedDocuments = comments.documents.map((comment: Models.Document) => ({
+      ...comment,
+      author: userMap.get(comment.userId) ?? null,
+    }));
+
+    return { ...comments, documents: enrichedDocuments };
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
+
+export async function deleteComment(commentId: string) {
+  if (!appwriteConfig.commentsCollectionId) {
+    throw new Error("Comments collection is not configured.");
+  }
+
+  try {
+    const status = await databases.deleteDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.commentsCollectionId,
+      commentId
+    );
+
+    if (!status) throw Error;
+
+    return status;
+  } catch (error) {
+    console.log(error);
+    throw error;
   }
 }
 export async function savePost(userId: string, postId: string) {
