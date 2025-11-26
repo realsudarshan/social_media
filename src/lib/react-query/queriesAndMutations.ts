@@ -2,6 +2,7 @@ import { INewComment, INewPost, INewUser, IUpdatePost, IUpdateUser } from '@/typ
 import {useQuery,useMutation,useQueryClient,useInfiniteQuery} from '@tanstack/react-query'
 import {
   createComment,
+  createPasswordRecovery,
   createPost,
   createUserAccount,
   deleteComment,
@@ -22,6 +23,7 @@ import {
   signInAccount,
   signOutAccount,
   unfollowUser,
+  updatePasswordRecovery,
   updatePost,
   updateUser,
 } from '../appwrite/api';
