@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Loader from "@/components/shared/Loader";
+import VerificationRequired from "@/components/shared/VerificationRequired";
 import { useUserContext } from "@/context/AuthContext";
 import { multiFormatDateString } from "@/lib/utils";
 import {
@@ -18,7 +19,7 @@ type CommentsProps = {
 };
 
 const Comments = ({ postId }: CommentsProps) => {
-  const { user } = useUserContext();
+  const { user, isEmailVerified } = useUserContext();
   const [commentValue, setCommentValue] = useState("");
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
@@ -38,6 +39,11 @@ const Comments = ({ postId }: CommentsProps) => {
     e.preventDefault();
     const trimmed = commentValue.trim();
     if (!trimmed) return;
+
+    if (!isEmailVerified) {
+      toast.error("Please verify your email to post comments");
+      return;
+    }
 
     setCommentValue("");
 
@@ -125,6 +131,12 @@ const Comments = ({ postId }: CommentsProps) => {
         </ul>
       )}
 
+      {!isEmailVerified && (
+        <div className="mt-6">
+          <VerificationRequired message="Please verify your email to post comments" />
+        </div>
+      )}
+
       <form onSubmit={handleSubmit} className="flex gap-3 mt-8">
         <Input
           type="text"
@@ -132,12 +144,12 @@ const Comments = ({ postId }: CommentsProps) => {
           className="bg-dark-3 border-dark-4 focus-visible:ring-0 focus-visible:ring-offset-0"
           value={commentValue}
           onChange={(e) => setCommentValue(e.target.value)}
-          disabled={isPending}
+          disabled={isPending || !isEmailVerified}
         />
         <Button
           type="submit"
           className="shad-button_primary whitespace-nowrap"
-          disabled={isPending || !commentValue.trim()}
+          disabled={isPending || !commentValue.trim() || !isEmailVerified}
         >
           {isPending ? "Posting..." : "Post"}
         </Button>

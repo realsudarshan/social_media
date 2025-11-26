@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useGetCurrentUser, useFollowUser, useUnfollowUser } from "@/lib/react-query/queriesAndMutations";
 import { checkUserFollowStatus } from "@/lib/appwrite/api";
+import { useUserContext } from "@/context/AuthContext";
+import { toast } from "sonner";
 import { Button } from "../ui/button";
 
 type UserCardProps = {
@@ -10,6 +12,7 @@ type UserCardProps = {
 };
 
 const UserCard = ({ user }: UserCardProps) => {
+  const { isEmailVerified } = useUserContext();
   const { data: currentUser } = useGetCurrentUser();
   const { mutate: followUser, isPending: isFollowing } = useFollowUser();
   const { mutate: unfollowUser, isPending: isUnfollowing } = useUnfollowUser();
@@ -37,6 +40,11 @@ const UserCard = ({ user }: UserCardProps) => {
 
     if (!currentUser) return;
 
+    if (!isEmailVerified) {
+      toast.error("Please verify your email to follow users");
+      return;
+    }
+
     const refreshFollowStatus = async () => {
       if (currentUser && user) {
         const followStatus = await checkUserFollowStatus(currentUser.$id, user.$id);
@@ -54,8 +62,8 @@ const UserCard = ({ user }: UserCardProps) => {
         }
       );
     } else {
-     
-     
+
+
       followUser(
         { userId: currentUser.$id, followUserId: user.$id },
         {
@@ -93,13 +101,13 @@ const UserCard = ({ user }: UserCardProps) => {
           size="sm"
           className={`shad-button_primary px-5 ${isFollowingUser ? "shad-button_dark_4" : ""}`}
           onClick={handleFollowClick}
-          disabled={isCheckingStatus || isFollowing || isUnfollowing}
+          disabled={isCheckingStatus || isFollowing || isUnfollowing || !isEmailVerified}
         >
           {isCheckingStatus || isFollowing || isUnfollowing
             ? "..."
             : isFollowingUser
-            ? "Unfollow"
-            : "Follow"}
+              ? "Unfollow"
+              : "Follow"}
         </Button>
       )}
     </Link>

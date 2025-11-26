@@ -14,6 +14,7 @@ import { useUserContext } from "@/context/AuthContext";
 import { useGetUserById, useFollowUser, useUnfollowUser, useGetFollowersCount, useGetFollowingCount, useGetCurrentUser } from "@/lib/react-query/queriesAndMutations";
 import { checkUserFollowStatus } from "@/lib/appwrite/api";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 import LikedPosts from "./LikedPosts";
 import GridPostList from "@/components/shared/GridPostList";
@@ -33,7 +34,7 @@ const StatBlock = ({ value, label }: StabBlockProps) => (
 
 const Profile = () => {
   const { id } = useParams();
-  const { user } = useUserContext();
+  const { user, isEmailVerified } = useUserContext();
   const { pathname } = useLocation();
 
   const { data: currentUser } = useGetUserById(id || "");
@@ -62,6 +63,11 @@ const Profile = () => {
 
   const handleFollowClick = () => {
     if (!loggedInUser || !currentUser) return;
+
+    if (!isEmailVerified) {
+      toast.error("Please verify your email to follow users");
+      return;
+    }
 
     const refreshFollowStatus = async () => {
       if (loggedInUser && currentUser) {
@@ -134,9 +140,8 @@ const Profile = () => {
             <div className={`${user.id !== currentUser.$id && "hidden"}`}>
               <Link
                 to={`/update-profile/${currentUser.$id}`}
-                className={`h-12 bg-dark-4 px-5 text-light-1 flex-center gap-2 rounded-lg ${
-                  user.id !== currentUser.$id && "hidden"
-                }`}>
+                className={`h-12 bg-dark-4 px-5 text-light-1 flex-center gap-2 rounded-lg ${user.id !== currentUser.$id && "hidden"
+                  }`}>
                 <img
                   src={"/assets/icons/edit.svg"}
                   alt="edit"
@@ -154,13 +159,13 @@ const Profile = () => {
                   type="button"
                   className={`shad-button_primary px-8 ${isFollowingUser ? "shad-button_dark_4" : ""}`}
                   onClick={handleFollowClick}
-                  disabled={isCheckingStatus || isFollowing || isUnfollowing}
+                  disabled={isCheckingStatus || isFollowing || isUnfollowing || !isEmailVerified}
                 >
                   {isCheckingStatus || isFollowing || isUnfollowing
                     ? "..."
                     : isFollowingUser
-                    ? "Unfollow"
-                    : "Follow"}
+                      ? "Unfollow"
+                      : "Follow"}
                 </Button>
               </div>
             )}
@@ -172,9 +177,8 @@ const Profile = () => {
         <div className="flex max-w-5xl w-full">
           <Link
             to={`/profile/${id}`}
-            className={`profile-tab rounded-l-lg ${
-              pathname === `/profile/${id}` && "!bg-dark-3"
-            }`}>
+            className={`profile-tab rounded-l-lg ${pathname === `/profile/${id}` && "!bg-dark-3"
+              }`}>
             <img
               src={"/assets/icons/posts.svg"}
               alt="posts"
@@ -185,9 +189,8 @@ const Profile = () => {
           </Link>
           <Link
             to={`/profile/${id}/liked-posts`}
-            className={`profile-tab rounded-r-lg ${
-              pathname === `/profile/${id}/liked-posts` && "!bg-dark-3"
-            }`}>
+            className={`profile-tab rounded-r-lg ${pathname === `/profile/${id}/liked-posts` && "!bg-dark-3"
+              }`}>
             <img
               src={"/assets/icons/like.svg"}
               alt="like"
