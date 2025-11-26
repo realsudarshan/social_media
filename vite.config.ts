@@ -10,4 +10,11 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+   server: {
+    host: true, // allows access from network / external
+    port: 5173,
+    allowedHosts: [
+      'dumpishly-postrenal-lawrence.ngrok-free.dev'
+    ]
+  }
 })

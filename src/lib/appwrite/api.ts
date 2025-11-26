@@ -62,9 +62,8 @@ export async function signInAccount(user: { email: string; password: string }) {
     console.log("SESSION CREATED:", session);
 
     try {
-      const verify = await account.createVerification(
-        "http://localhost:5173/verify"
-      );
+      const verify = await account.createVerification(`${window.location.origin}/verify`);
+
       console.log("Verification request:", verify);
     } catch (error) {
       console.log("Verification email skipped/failed:", error);
@@ -91,7 +90,7 @@ export async function createPasswordRecovery(email: string) {
   try {
     const result = await account.createRecovery(
       email,
-      "http://localhost:5173/reset-password"
+      `${window.location.origin}/reset-password`
     );
     return result;
   } catch (error) {
@@ -427,7 +426,6 @@ export async function likePost(postId: string, likesArray: string[]) {
   }
 }
 export async function createComment(comment: INewComment) {
-  console.log("The comment is",comment) 
   if (!appwriteConfig.commentsCollectionId) {
     throw new Error("Comments collection is not configured.");
   }
@@ -442,7 +440,6 @@ export async function createComment(comment: INewComment) {
         content: comment.content,
       }
     );
-console.log("The new comment is",newComment)
     if (!newComment) throw Error;
 
     return newComment;
@@ -757,4 +754,97 @@ export async function getFollowingCount(userId: string) {
     console.log("Error getting following count:", error);
     return 0;
   }
+}
+// ============================== GET FOLLOWERS LIST
+export async function getFollowersList(userId: string) {
+    try {
+        if (!userId) return [];
+
+        // Get all follow documents where this user is being followed
+        const followDocuments = await databases.listDocuments(
+            appwriteConfig.databaseId,
+            appwriteConfig.followCollectionId,
+            [Query.equal("followingId", userId)]
+        );
+
+        // Extract follower IDs
+        const followerIds = followDocuments.documents.map((doc) => doc.followerId);
+
+        if (followerIds.length === 0) return [];
+
+        // Fetch user details for all followers
+        const followers = await Promise.all(
+            followerIds.map(async (followerId) => {
+                try {
+                    const user = await databases.getDocument(
+                        appwriteConfig.databaseId,
+                        appwriteConfig.userCollectionId,
+                        followerId
+                    );
+                    return {
+                        $id: user.$id,
+                        name: user.name,
+                        username: user.username,
+                        imageUrl: user.imageUrl,
+                    };
+                } catch (error) {
+                    console.log("Error fetching follower:", followerId, error);
+                    return null;
+                }
+            })
+        );
+
+        // Filter out any null values from failed fetches
+        return followers.filter((follower) => follower !== null);
+    } catch (error) {
+        console.log("Error getting followers list:", error);
+        return [];
+    }
+}
+
+// ============================== GET FOLLOWING LIST
+export async function getFollowingList(userId: string) {
+    try {
+        if (!userId) return [];
+
+        // Get all follow documents where this user is the follower
+        const followDocuments = await databases.listDocuments(
+            appwriteConfig.databaseId,
+            appwriteConfig.followCollectionId,
+            [Query.equal("followerId", userId)]
+        );
+
+        // Extract following IDs
+        const followingIds = followDocuments.documents.map((doc) => doc.followingId);
+
+        if (followingIds.length === 0) return [];
+
+        // Fetch user details for all following users
+        const following = await Promise.all(
+            followingIds.map(async (followingId) => {
+                try {
+                    const user = await databases.getDocument(
+                        appwriteConfig.databaseId,
+                        appwriteConfig.userCollectionId,
+                        followingId
+                    );
+                    return {
+                        $id: user.$id,
+                        name: user.name,
+                        username: user.username,
+                        imageUrl: user.imageUrl,
+                    };
+                } catch (error) {
+                    console.log("Error fetching following user:", followingId, error);
+                    return null;
+                }
+            })
+        );
+
+        // Filter out any null values from failed fetches
+        return following.filter((user) => user !== null);
+    } catch (error) {
+        console.log("Error getting following list:", error);
+        return [];
+    }
 }

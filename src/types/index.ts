@@ -54,10 +54,14 @@ export type IUpdateUser = {
 
 export type IComment = {
   $id: string;
+  $collectionId: string;
+  $databaseId: string;
+  $createdAt: string;
+  $updatedAt: string;
+  $permissions: string[];
   post: string;
   userId: string;
   content: string;
-  createdAt: string;
   author?: {
     $id: string;
     name: string;

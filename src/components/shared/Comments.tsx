@@ -32,7 +32,7 @@ const Comments = ({ postId }: CommentsProps) => {
   const { mutateAsync: removeComment } = useDeleteComment();
 
   const comments: IComment[] = useMemo(() => {
-    return commentsData?.documents ?? [];
+    return (commentsData?.documents ?? []) as IComment[];
   }, [commentsData]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -107,7 +107,7 @@ const Comments = ({ postId }: CommentsProps) => {
                     </div>
                     <div className="flex items-center gap-3">
                       <p className="text-light-4 text-xs">
-                        {multiFormatDateString(comment.createdAt)}
+                        {multiFormatDateString(comment.$createdAt)}
                       </p>
                       {comment.userId === user.id && (
                         <button

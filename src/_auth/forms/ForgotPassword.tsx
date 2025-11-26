@@ -16,6 +16,7 @@ import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useCreatePasswordRecovery } from '@/lib/react-query/queriesAndMutations';
 import { useState } from 'react';
+import Logo from '@/components/shared/Logo';
 
 const ForgotPassword = () => {
     const [emailSent, setEmailSent] = useState(false);
@@ -41,7 +42,9 @@ const ForgotPassword = () => {
     if (emailSent) {
         return (
             <div className='sm:w-[420px] flex-center flex-col'>
-                <img src='/assets/images/logo.svg' alt="Logo" />
+                <div className='flex-center flex-col mb-6'>
+                    <Logo size="large" />
+                </div>
                 <h1 className='mt-8'>Check your email</h1>
                 <p className='text-light-3 small-medium md:base-regular mt-2 text-center'>
                     We've sent a password reset link to <strong>{form.getValues('email')}</strong>
@@ -58,8 +61,8 @@ const ForgotPassword = () => {
 
     return (
         <Form {...form}>
-            <div className='sm:w-[420px] flex-center flex-col'>
-                <img src='/assets/images/logo.svg' alt="Logo" />
+            <div className='sm:w-[420px] flex-center flex-col mb-6'>
+                <Logo size="large" />
             </div>
             <h1>Forgot Password</h1>
             <p className='text-light-3 small-medium md:base-regular mt-2'>

@@ -11,7 +11,9 @@ import {
   getCommentsByPost,
   getCurrentUser,
   getFollowersCount,
+  getFollowersList,
   getFollowingCount,
+  getFollowingList,
   getInfinitePosts,
   getPostById,
   getRecentPosts,
@@ -322,5 +324,19 @@ export const useUpdatePasswordRecovery = () => {
   return useMutation({
     mutationFn: ({ userId, secret, password }: { userId: string; secret: string; password: string }) =>
       updatePasswordRecovery(userId, secret, password),
+  });
+};
+export const useGetFollowersList = (userId: string) => {
+  return useQuery({
+    queryKey: ["getFollowersList", userId],
+    queryFn: () => getFollowersList(userId),
+    enabled: !!userId,
+  });
+};
+export const useGetFollowingList = (userId: string) => {
+  return useQuery({
+    queryKey: ["getFollowingList", userId],
+    queryFn: () => getFollowingList(userId),
+    enabled: !!userId,
   });
 };

@@ -64,9 +64,9 @@ const SignupForm = () => {
   }
   return (
     <Form {...form}>
-        <div className='sm:w-[420px] flex-center flex-col mb-6'>
-            <Logo size="large" />
-        </div>
+      <div className='sm:w-[420px] flex-center flex-col mb-6'>
+        <Logo size="large" />
+      </div>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <FormField
           control={form.control}
@@ -123,7 +123,7 @@ const SignupForm = () => {
             <FormItem>
               <FormLabel>Password</FormLabel>
               <FormControl>
-                <Input placeholder="shadcn" {...field} />
+                <Input type="password" placeholder="shadcn" {...field} />
               </FormControl>
               <FormDescription>
                 Enter your password

@@ -15,6 +15,7 @@ import { ResetPasswordValidation } from '@/lib/validation';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useUpdatePasswordRecovery } from '@/lib/react-query/queriesAndMutations';
+import Logo from '@/components/shared/Logo';
 
 const ResetPassword = () => {
     const [searchParams] = useSearchParams();
@@ -51,7 +52,9 @@ const ResetPassword = () => {
     if (!userId || !secret) {
         return (
             <div className='sm:w-[420px] flex-center flex-col'>
-                <img src='/assets/images/logo.svg' alt="Logo" />
+                <div className='flex-center flex-col mb-6'>
+                    <Logo size="large" />
+                </div>
                 <h1 className='mt-8'>Invalid Reset Link</h1>
                 <p className='text-light-3 small-medium md:base-regular mt-2 text-center'>
                     This password reset link is invalid or has expired.
@@ -68,8 +71,8 @@ const ResetPassword = () => {
 
     return (
         <Form {...form}>
-            <div className='sm:w-[420px] flex-center flex-col'>
-                <img src='/assets/images/logo.svg' alt="Logo" />
+            <div className='sm:w-[420px] flex-center flex-col mb-6'>
+                <Logo size="large" />
             </div>
             <h1>Reset Password</h1>
             <p className='text-light-3 small-medium md:base-regular mt-2'>
