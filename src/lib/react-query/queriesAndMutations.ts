@@ -36,14 +36,14 @@ export const useCreateUserAccount = () => {
 export const useSignInAccount = () => {
   return useMutation({
     mutationFn: (user: {
-      email:string;
-      password:string;
+      email: string;
+      password: string;
     }) => signInAccount(user),
   });
 };
 export const useSignOutAccount = () => {
   return useMutation({
-   mutationFn:signOutAccount
+    mutationFn: signOutAccount
   });
 };
 export const useCreatePost = () => {
@@ -92,7 +92,7 @@ export const useGetPosts = () => {
   return useInfiniteQuery({
     queryKey: [QUERY_KEYS.GET_INFINITE_POSTS],
     queryFn: getInfinitePosts as any,
-     initialPageParam: null,
+    initialPageParam: null,
     getNextPageParam: (lastPage: any) => {
       // If there's no data, there are no more pages.
       if (lastPage && lastPage.documents.length === 0) {
@@ -307,5 +307,18 @@ export const useGetFollowingCount = (userId: string) => {
     queryKey: ["getFollowingCount", userId],
     queryFn: () => getFollowingCount(userId),
     enabled: !!userId,
+  });
+};
+
+export const useCreatePasswordRecovery = () => {
+  return useMutation({
+    mutationFn: (email: string) => createPasswordRecovery(email),
+  });
+};
+
+export const useUpdatePasswordRecovery = () => {
+  return useMutation({
+    mutationFn: ({ userId, secret, password }: { userId: string; secret: string; password: string }) =>
+      updatePasswordRecovery(userId, secret, password),
   });
 };

@@ -20,12 +20,12 @@ export type IUpdatePost = {
   tags?: string;
 };
 export type INewUser = {
-    name: string;
-    email: string;
-    username: string;
-    password: string;
-  };
-  export type IUser = {
+  name: string;
+  email: string;
+  username: string;
+  password: string;
+};
+export type IUser = {
   id: string;
   name: string;
   username: string;
@@ -39,6 +39,8 @@ export type IContextType = {
   setUser: React.Dispatch<React.SetStateAction<IUser>>;
   isAuthenticated: boolean;
   setIsAuthenticated: React.Dispatch<React.SetStateAction<boolean>>;
+  isEmailVerified: boolean;
+  setIsEmailVerified: React.Dispatch<React.SetStateAction<boolean>>;
   checkAuthUser: () => Promise<boolean>;
 };
 export type IUpdateUser = {

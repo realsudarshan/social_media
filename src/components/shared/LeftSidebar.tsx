@@ -6,17 +6,19 @@ import { INITIAL_USER, useUserContext } from '@/context/AuthContext'
 import { sidebarLinks } from '@/constants'
 import { INavLink } from '@/types'
 import Loader from './Loader'
+import { toast } from 'sonner'
+
 const LeftSidebar = () => {
-  const pathname=useLocation();
-   const {mutate:signOut,isSuccess}=useSignOutAccount();
-    const navigate=useNavigate();
-    const { user, setUser, setIsAuthenticated, isLoading } = useUserContext();
+  const pathname = useLocation();
+  const { mutate: signOut, isSuccess } = useSignOutAccount();
+  const navigate = useNavigate();
+  const { user, setUser, setIsAuthenticated, isLoading, isEmailVerified } = useUserContext();
   useEffect(() => {
-    if(isSuccess) navigate(0);
-  
+    if (isSuccess) navigate(0);
+
   }, [isSuccess])
 
-   const handleSignOut = async (
+  const handleSignOut = async (
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => {
     e.preventDefault();
@@ -24,6 +26,13 @@ const LeftSidebar = () => {
     setIsAuthenticated(false);
     setUser(INITIAL_USER);
     navigate("/sign-in");
+  };
+
+  const handleRestrictedClick = (e: React.MouseEvent, route: string) => {
+    if (!isEmailVerified && route === '/create-post') {
+      e.preventDefault();
+      toast.error("Please verify your email to create posts");
+    }
   };
 
   return (
@@ -34,7 +43,7 @@ const LeftSidebar = () => {
             <Loader />
           </div>
         ) : (
-          
+
           <Link to={`/profile/${user.id}`} className="flex gap-3 items-center ml-2 max-w-full overflow-hidden">
             <img
               src={user.imageUrl || "/assets/icons/profile-placeholder.svg"}
@@ -46,30 +55,31 @@ const LeftSidebar = () => {
               <p className="small-regular text-light-3">@{user.username}</p>
             </div>
           </Link>
-          
+
         )}
 
         <ul className="flex flex-col gap-6">
           {sidebarLinks.map((link: INavLink) => {
             const isActive = pathname === link.route as any;
+            const isRestricted = !isEmailVerified && link.route === '/create-post';
 
             return (
               <li
                 key={link.label}
-                className={`leftsidebar-link group ${
-                  isActive && "bg-primary-500"
-                }`}>
+                className={`leftsidebar-link group ${isActive && "bg-primary-500"
+                  } ${isRestricted && 'opacity-50'}`}>
                 <NavLink
                   to={link.route}
+                  onClick={(e) => handleRestrictedClick(e, link.route)}
                   className="flex gap-4 items-center p-4">
                   <img
                     src={link.imgURL}
                     alt={link.label}
-                    className={`group-hover:invert-white ${
-                      isActive && "invert-white"
-                    }`}
+                    className={`group-hover:invert-white ${isActive && "invert-white"
+                      }`}
                   />
                   {link.label}
+                  {isRestricted && <span className="text-xs ml-auto">🔒</span>}
                 </NavLink>
               </li>
             );

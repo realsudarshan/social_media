@@ -12,8 +12,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 
-
-
 import { ProfileValidation } from "@/lib/validation";
 import { useUserContext } from "@/context/AuthContext";
 import { useGetUserById, useUpdateUser } from "@/lib/react-query/queriesAndMutations";
@@ -23,12 +21,13 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import ProfileUploader from "@/components/shared/ProfileUploader";
 import Loader from "@/components/shared/Loader";
+import VerificationRequired from "@/components/shared/VerificationRequired";
 
 const UpdateProfile = () => {
-  
+
   const navigate = useNavigate();
   const { id } = useParams();
-  const { user, setUser } = useUserContext();
+  const { user, setUser, isEmailVerified } = useUserContext();
   const form = useForm<z.infer<typeof ProfileValidation>>({
     resolver: zodResolver(ProfileValidation),
     defaultValues: {
@@ -54,6 +53,11 @@ const UpdateProfile = () => {
 
   // Handler
   const handleUpdate = async (value: z.infer<typeof ProfileValidation>) => {
+    if (!isEmailVerified) {
+      toast.error("Please verify your email to update your profile");
+      return;
+    }
+
     const updatedUser = await updateUser({
       userId: currentUser.$id,
       name: value.name,
@@ -64,7 +68,7 @@ const UpdateProfile = () => {
     });
 
     if (!updatedUser) {
-      toast.error( `Update user failed. Please try again.`);
+      toast.error(`Update user failed. Please try again.`);
     }
 
     setUser({
@@ -94,6 +98,11 @@ const UpdateProfile = () => {
           <form
             onSubmit={form.handleSubmit(handleUpdate)}
             className="flex flex-col gap-7 w-full mt-4 max-w-5xl">
+
+            {!isEmailVerified && (
+              <VerificationRequired message="Please verify your email to update your profile" />
+            )}
+
             <FormField
               control={form.control}
               name="file"
@@ -117,7 +126,7 @@ const UpdateProfile = () => {
                 <FormItem>
                   <FormLabel className="shad-form_label">Name</FormLabel>
                   <FormControl>
-                    <Input type="text" className="shad-input" {...field} />
+                    <Input type="text" className="shad-input" {...field} disabled={!isEmailVerified} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -172,6 +181,7 @@ const UpdateProfile = () => {
                     <Textarea
                       className="shad-textarea "
                       {...field}
+                      disabled={!isEmailVerified}
                     />
                   </FormControl>
                   <FormMessage className="shad-form_message" />
@@ -189,7 +199,7 @@ const UpdateProfile = () => {
               <Button
                 type="submit"
                 className="shad-button_primary whitespace-nowrap"
-                disabled={isLoadingUpdate}>
+                disabled={isLoadingUpdate || !isEmailVerified}>
                 {isLoadingUpdate && <Loader />}
                 Update Profile
               </Button>
