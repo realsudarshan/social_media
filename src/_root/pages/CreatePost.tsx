@@ -1,7 +1,6 @@
 import Postform from '@/components/forms/Postform';
-import VerificationRequired from '@/components/shared/VerificationRequired';
 import { useUserContext } from '@/context/AuthContext';
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 

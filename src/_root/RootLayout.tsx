@@ -3,7 +3,6 @@ import LeftSidebar from '@/components/shared/LeftSidebar'
 import Topbar from '@/components/shared/Topbar'
 import EmailVerificationBanner from '@/components/shared/EmailVerificationBanner'
 import { useUserContext } from '@/context/AuthContext'
-import React from 'react'
 import { Navigate, Outlet } from 'react-router-dom'
 
 const RootLayout = () => {
