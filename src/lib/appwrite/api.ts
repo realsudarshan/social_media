@@ -348,6 +348,7 @@ export async function getPostById(postId?: string) {
     const formattedPost = {
       ...post,
       imageUrl: post.imageUrl?.replace("/preview", "/view"),
+      imageId: post.imageId, // Explicitly preserve imageId
     };
 
     return formattedPost;
