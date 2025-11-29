@@ -836,3 +836,27 @@ export async function getFollowingList(userId: string) {
     return [];
   }
 }
+
+// ============================== DELETE POST
+export async function deletePost(postId: string, imageId: string) {
+  if (!postId) throw Error;
+
+  try {
+    // Delete the post document
+    const statusCode = await databases.deleteDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.postCollectionId,
+      postId
+    );
+
+    if (!statusCode) throw Error;
+
+    // Delete the associated image file
+    await deleteFile(imageId);
+
+    return { status: "Ok" };
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
