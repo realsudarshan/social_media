@@ -53,7 +53,6 @@ const Postform = ({ post, action }: PostFormProps) => {
         imageId: post.imageId,
         imageUrl: post.imageUrl,
       });
-      console.log("The values are", value, post, updatedPost)
       if (!updatedPost) {
         toast(`${action} post failed. Please try again.`);
       }

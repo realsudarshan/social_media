@@ -77,7 +77,7 @@ const UserCard = ({ user }: UserCardProps) => {
 
   // Don't show follow button if viewing own profile
   const isCurrentUser = currentUser?.$id === user.$id;
-
+  
   return (
     <Link to={`/profile/${user.$id}`} className="user-card">
       <img

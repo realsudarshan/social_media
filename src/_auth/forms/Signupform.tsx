@@ -43,17 +43,14 @@ const SignupForm = () => {
 
     }
     toast.success('Signed up sucessfully')
-    console.log("Before making session")
     const session = await signInAccount({
       email: values.email,
       password: values.password
     });
-    console.log(session)
     if (!session) {
       return toast.error('Sign in failed.Please try again')
     }
     const isLoggedIn = await checkAuthUser();
-    console.log("Is user logged in,isLoggedIn")
     if (isLoggedIn) {
       form.reset();
       navigate('/')
