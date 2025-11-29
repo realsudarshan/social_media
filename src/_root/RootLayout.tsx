@@ -19,7 +19,7 @@ const RootLayout = () => {
         </div>
 
         <div className='flex flex-1 overflow-hidden h-screen '>
-          <div className='sticky top-0 h-screen w-1/4'>
+          <div className='hidden md:flex sticky top-0 h-screen w-1/4'>
             <LeftSidebar />
           </div>
 

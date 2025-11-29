@@ -16,7 +16,7 @@ const BottomBar = () => {
   };
 
   return (
-    <section className="bottom-bar hidden bg-green-300">
+    <section className="bottom-bar">
       {bottombarLinks.map((link) => {
         const isActive = pathname === link.route;
         const isRestricted = !isEmailVerified && link.route === '/create-post';

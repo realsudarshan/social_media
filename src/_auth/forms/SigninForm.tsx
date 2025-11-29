@@ -5,7 +5,6 @@ import { z } from "zod"
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -22,7 +21,7 @@ import Logo from '@/components/shared/Logo'
 
 const SigninForm = () => {
 
-  const { mutateAsync: signInAccount, isPending:_isPending } = useSignInAccount();
+  const { mutateAsync: signInAccount, isPending: _isPending } = useSignInAccount();
   const { checkAuthUser, isLoading: isUserLoading } = useUserContext()
   const navigate = useNavigate();
   const form = useForm<z.infer<typeof SigninValidation>>({
@@ -52,10 +51,10 @@ const SigninForm = () => {
   }
   return (
     <Form {...form}>
-        <div className='sm:w-[420px] flex-center flex-col mb-6'>
-            <Logo size="large" />
-        </div>
-        <h1>Log in</h1>
+      <div className='sm:w-[420px] flex-center flex-col mb-6'>
+        <Logo size="large" />
+      </div>
+      <h1>Log in</h1>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
 
         <FormField
@@ -65,11 +64,8 @@ const SigninForm = () => {
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input placeholder="shadcn" {...field} />
+                <Input placeholder="Enter your email" {...field} />
               </FormControl>
-              <FormDescription>
-                This is your public display name.
-              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -81,11 +77,8 @@ const SigninForm = () => {
             <FormItem>
               <FormLabel>Password</FormLabel>
               <FormControl>
-                <Input type="password" placeholder="shadcn" {...field} />
+                <Input type="password" placeholder="Enter your password" {...field} />
               </FormControl>
-              <FormDescription>
-                Enter your password
-              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
